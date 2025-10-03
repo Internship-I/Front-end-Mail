@@ -40,21 +40,11 @@ class IntroPage extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Bagian gambar kurir/logo
-                  Image.asset(
-                    "assets/images/kurir.jpg",
-                    width: 230,
-                    height: 230,
-                    fit: BoxFit.contain,
-                  ),
-
-                  const SizedBox(height: 30),
-
-                  // Bagian teks
+                  // Bagian teks (pindah ke atas gambar kurir)
                   Column(
                     children: [
                       Text(
-                        "Grow Your Delivery Service",
+                        "Aplikasi Untuk Kurir Pengiriman Paket",
                         style: GoogleFonts.poppins(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -64,7 +54,7 @@ class IntroPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        "Fast, safe, and reliable courier service.\nEasy to order – anytime, anywhere.",
+                        "Safe, and reliable courier service.\nEasy to order – anytime, anywhere.",
                         style: GoogleFonts.poppins(
                           fontSize: 15,
                           color: const Color.fromARGB(179, 0, 0, 0),
@@ -72,6 +62,16 @@ class IntroPage extends StatelessWidget {
                         textAlign: TextAlign.center,
                       ),
                     ],
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  // Bagian gambar kurir/logo
+                  Image.asset(
+                    "assets/images/kurir.jpg",
+                    width: 230,
+                    height: 230,
+                    fit: BoxFit.contain,
                   ),
 
                   const SizedBox(height: 50),

@@ -1,48 +1,83 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class CourierDashboard extends StatelessWidget {
+class CourierDashboard extends StatefulWidget {
   const CourierDashboard({super.key});
 
-  // Contoh data sementara, nanti akan diganti dari API
+  @override
+  State<CourierDashboard> createState() => _CourierDashboardState();
+}
+
+class _CourierDashboardState extends State<CourierDashboard> {
+  // Data sementara
   static const List<Map<String, String>> recipients = [
     {
-      "ReceiverName": "John Doe",
-      "SenderName": "Alice",
+      "ReceiverName": "Nida Sakina Aulia",
+      "SenderName": "Pak Joko",
       "ConsigmentNote": "CN001",
-      "PhoneNumber": "08123456789",
+      "PhoneNumber": "6283174603834",
+      "Price": "50000",
       "ItemContent": "Dokumen",
       "DeliveryStatus": "Delivered"
     },
     {
-      "ReceiverName": "Jane Smith",
-      "SenderName": "Bob",
+      "ReceiverName": "Muhammad Qinthar",
+      "SenderName": "Pak Budi",
       "ConsigmentNote": "CN002",
-      "PhoneNumber": "08234567890",
+      "PhoneNumber": "6282127854156",
+      "Price": "60000",
       "ItemContent": "Paket Elektronik",
       "DeliveryStatus": "In Progress"
     },
     {
-      "ReceiverName": "Jane Smith",
-      "SenderName": "Bob",
-      "ConsigmentNote": "CN002",
-      "PhoneNumber": "08234567890",
-      "ItemContent": "Paket Elektronik",
-      "DeliveryStatus": "In Progress"
-    },
-    {
-      "ReceiverName": "Jane Smith",
-      "SenderName": "Bob",
-      "ConsigmentNote": "CN002",
-      "PhoneNumber": "08234567890",
-      "ItemContent": "Paket Elektronik",
+      "ReceiverName": "Pak Agus Komarudin",
+      "SenderName": "Pak Budi",
+      "ConsigmentNote": "CN003",
+      "PhoneNumber": "6281997940005",
+      "Price": "70000",
+      "ItemContent": "Makanan Sehat",
       "DeliveryStatus": "In Progress"
     },
   ];
 
+  List<Map<String, String>> filteredRecipients = recipients;
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_filterRecipients);
+  }
+
+  void _filterRecipients() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      filteredRecipients = recipients.where((data) {
+        return data["ReceiverName"]!.toLowerCase().contains(query) ||
+            data["SenderName"]!.toLowerCase().contains(query) ||
+            data["ConsigmentNote"]!.toLowerCase().contains(query) ||
+            data["PhoneNumber"]!.toLowerCase().contains(query);
+      }).toList();
+    });
+  }
+
+  // Fungsi Helpdesk WhatsApp
+  Future<void> _openWhatsApp(String phone, String consignmentNote,
+      String receiverName, String price) async {
+    final message =
+        "Hai Sahabat Pos, Atas Nama $receiverName, Paket COD Anda Dengan Resi $consignmentNote Dengan Harga $price Akan Segera Datang ";
+    final encodedMessage = Uri.encodeComponent(message);
+    final url = Uri.parse("https://wa.me/$phone?text=$encodedMessage");
+
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      throw Exception("Tidak bisa membuka WhatsApp");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    var positioned = Positioned(
+    var headerLogos = Positioned(
       top: 0,
       left: 0,
       child: SafeArea(
@@ -77,10 +112,11 @@ class CourierDashboard extends StatelessWidget {
           children: [
             Column(
               children: [
-                const SizedBox(height: 70), // ruang untuk logo
+                const SizedBox(height: 70),
 
+                // Judul
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -93,6 +129,23 @@ class CourierDashboard extends StatelessWidget {
                   ),
                 ),
 
+                // Search Bar
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: "Search by name, consignment, or phone...",
+                      prefixIcon: const Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Tabel Data
                 Expanded(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.vertical,
@@ -107,42 +160,47 @@ class CourierDashboard extends StatelessWidget {
                           DataColumn(label: Text("Consignment")),
                           DataColumn(label: Text("Phone")),
                           DataColumn(label: Text("Item")),
+                          DataColumn(label: Text("Price")),
                           DataColumn(label: Text("Status")),
                           DataColumn(label: Text("WA")),
                         ],
-                        rows: recipients
-                            .map<DataRow>(
-                              (data) => DataRow(
-                                cells: [
-                                  DataCell(Text(data["ReceiverName"]!)),
-                                  DataCell(Text(data["SenderName"]!)),
-                                  DataCell(Text(data["ConsigmentNote"]!)),
-                                  DataCell(Text(data["PhoneNumber"]!)),
-                                  DataCell(Text(data["ItemContent"]!)),
-                                  DataCell(Text(data["DeliveryStatus"]!)),
-                                  DataCell(
-                                    GestureDetector(
-                                      onTap: () {
-                                        // nanti bisa buka WhatsApp ke nomor di data["PhoneNumber"]
-                                      },
-                                      child: Image.asset(
-                                        "assets/images/walogo.png",
-                                        width: 30,
-                                        height: 30,
-                                      ),
-                                    ),
+                        rows: filteredRecipients.map<DataRow>((data) {
+                          return DataRow(
+                            cells: [
+                              DataCell(Text(data["ReceiverName"]!)),
+                              DataCell(Text(data["SenderName"]!)),
+                              DataCell(Text(data["ConsigmentNote"]!)),
+                              DataCell(Text(data["PhoneNumber"]!)),
+                              DataCell(Text(data["ItemContent"]!)),
+                              DataCell(Text(data["Price"]!)),
+                              DataCell(Text(data["DeliveryStatus"]!)),
+                              DataCell(
+                                IconButton(
+                                  icon: Image.asset(
+                                    "assets/images/walogo.png", // ✅ icon WA custom
+                                    width: 24,
+                                    height: 24,
                                   ),
-                                ],
+                                  onPressed: () {
+                                    _openWhatsApp(
+                                      data["PhoneNumber"]!,
+                                      data["ConsigmentNote"]!,
+                                      data["ReceiverName"]!,
+                                      data["Price"]!,
+                                    );
+                                  },
+                                ),
                               ),
-                            )
-                            .toList(),
+                            ],
+                          );
+                        }).toList(),
                       ),
                     ),
                   ),
                 ),
               ],
             ),
-            positioned,
+            headerLogos,
           ],
         ),
       ),
