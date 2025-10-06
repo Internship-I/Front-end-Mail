@@ -21,7 +21,12 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
+    - assets/images/postempat.jpg
+    - assets/images/danantaratempat.jpg
     - assets/images/kurir.jpg
     - assets/images/poslogo.png
     - assets/images/danantara.png
     - assets/images/walogo.png
+    - assets/images/admin.png
+    - assets/images/kurirhome.png
+    - assets/images/logo.png

@@ -55,8 +55,9 @@ class LoginScreen extends StatelessWidget {
                     // Username TextField
                     TextField(
                       decoration: InputDecoration(
-                        labelText: "Username",
-                        labelStyle: GoogleFonts.poppins(),
+                        labelText: "username",
+                        labelStyle:
+                            GoogleFonts.poppins(fontWeight: FontWeight.w400),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -69,8 +70,9 @@ class LoginScreen extends StatelessWidget {
                     TextField(
                       obscureText: true,
                       decoration: InputDecoration(
-                        labelText: "Password",
-                        labelStyle: GoogleFonts.poppins(),
+                        labelText: "password",
+                        labelStyle:
+                            GoogleFonts.poppins(fontWeight: FontWeight.w400),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -104,6 +106,7 @@ class LoginScreen extends StatelessWidget {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../widgets/CourierDashboard/index_courier_dashboard.dart'; // ✅ tinggal import index
 
 class CourierDashboard extends StatefulWidget {
   const CourierDashboard({super.key});
@@ -10,14 +11,13 @@ class CourierDashboard extends StatefulWidget {
 }
 
 class _CourierDashboardState extends State<CourierDashboard> {
-  // Data sementara
   static const List<Map<String, String>> recipients = [
     {
       "ReceiverName": "Nida Sakina Aulia",
       "SenderName": "Pak Joko",
       "ConsigmentNote": "CN001",
       "PhoneNumber": "6283174603834",
-      "Price": "50000",
+      "Price": "50.000",
       "ItemContent": "Dokumen",
       "DeliveryStatus": "Delivered"
     },
@@ -26,7 +26,7 @@ class _CourierDashboardState extends State<CourierDashboard> {
       "SenderName": "Pak Budi",
       "ConsigmentNote": "CN002",
       "PhoneNumber": "6282127854156",
-      "Price": "60000",
+      "Price": "6.0000",
       "ItemContent": "Paket Elektronik",
       "DeliveryStatus": "In Progress"
     },
@@ -35,7 +35,7 @@ class _CourierDashboardState extends State<CourierDashboard> {
       "SenderName": "Pak Budi",
       "ConsigmentNote": "CN003",
       "PhoneNumber": "6281997940005",
-      "Price": "70000",
+      "Price": "70.000",
       "ItemContent": "Makanan Sehat",
       "DeliveryStatus": "In Progress"
     },
@@ -62,7 +62,6 @@ class _CourierDashboardState extends State<CourierDashboard> {
     });
   }
 
-  // Fungsi Helpdesk WhatsApp
   Future<void> _openWhatsApp(String phone, String consignmentNote,
       String receiverName, String price) async {
     final message =
@@ -86,19 +85,9 @@ class _CourierDashboardState extends State<CourierDashboard> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Image.asset(
-                "assets/images/poslogo.png",
-                width: 50,
-                height: 50,
-                fit: BoxFit.contain,
-              ),
+              Image.asset("assets/images/poslogo.png", width: 50, height: 50),
               const SizedBox(width: 10),
-              Image.asset(
-                "assets/images/danantara.png",
-                width: 50,
-                height: 50,
-                fit: BoxFit.contain,
-              ),
+              Image.asset("assets/images/danantara.png", width: 50, height: 50),
             ],
           ),
         ),
@@ -113,8 +102,6 @@ class _CourierDashboardState extends State<CourierDashboard> {
             Column(
               children: [
                 const SizedBox(height: 70),
-
-                // Judul
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Align(
@@ -128,8 +115,6 @@ class _CourierDashboardState extends State<CourierDashboard> {
                     ),
                   ),
                 ),
-
-                // Search Bar
                 Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -145,57 +130,11 @@ class _CourierDashboardState extends State<CourierDashboard> {
                   ),
                 ),
 
-                // Tabel Data
+                // ✅ Pakai widget dari exclusive_table.dart
                 Expanded(
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.vertical,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: DataTable(
-                        columnSpacing: 12,
-                        horizontalMargin: 16,
-                        columns: const [
-                          DataColumn(label: Text("Recipient")),
-                          DataColumn(label: Text("Sender")),
-                          DataColumn(label: Text("Consignment")),
-                          DataColumn(label: Text("Phone")),
-                          DataColumn(label: Text("Item")),
-                          DataColumn(label: Text("Price")),
-                          DataColumn(label: Text("Status")),
-                          DataColumn(label: Text("WA")),
-                        ],
-                        rows: filteredRecipients.map<DataRow>((data) {
-                          return DataRow(
-                            cells: [
-                              DataCell(Text(data["ReceiverName"]!)),
-                              DataCell(Text(data["SenderName"]!)),
-                              DataCell(Text(data["ConsigmentNote"]!)),
-                              DataCell(Text(data["PhoneNumber"]!)),
-                              DataCell(Text(data["ItemContent"]!)),
-                              DataCell(Text(data["Price"]!)),
-                              DataCell(Text(data["DeliveryStatus"]!)),
-                              DataCell(
-                                IconButton(
-                                  icon: Image.asset(
-                                    "assets/images/walogo.png", // ✅ icon WA custom
-                                    width: 24,
-                                    height: 24,
-                                  ),
-                                  onPressed: () {
-                                    _openWhatsApp(
-                                      data["PhoneNumber"]!,
-                                      data["ConsigmentNote"]!,
-                                      data["ReceiverName"]!,
-                                      data["Price"]!,
-                                    );
-                                  },
-                                ),
-                              ),
-                            ],
-                          );
-                        }).toList(),
-                      ),
-                    ),
+                  child: ExclusiveTable(
+                    recipients: filteredRecipients,
+                    onWhatsAppPressed: _openWhatsApp,
                   ),
                 ),
               ],
