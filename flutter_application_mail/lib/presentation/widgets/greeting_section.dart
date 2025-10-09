@@ -18,7 +18,7 @@ class GreetingSection extends StatelessWidget {
                   fontSize: 16,
                   color: const Color.fromARGB(255, 60, 58, 58),
                 )),
-            Text("Kurir",
+            Text("Kurir ",
                 style: GoogleFonts.poppins(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,

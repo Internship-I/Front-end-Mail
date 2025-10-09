@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../widgets/CourierDashboard/index_courier_dashboard.dart'; // ✅ tinggal import index
+import '../widgets/CourierDashboard/index_courier_dashboard.dart';
+import '../widgets/greeting_section.dart'; // ✅ tinggal import index
 
 class CourierDashboard extends StatefulWidget {
   const CourierDashboard({super.key});
@@ -106,12 +107,17 @@ class _CourierDashboardState extends State<CourierDashboard> {
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Align(
                     alignment: Alignment.centerLeft,
-                    child: Text(
-                      "Recipient List",
-                      style: GoogleFonts.poppins(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Recipient List",
+                          style: GoogleFonts.poppins(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

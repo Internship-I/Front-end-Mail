@@ -9,7 +9,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  font_awesome_flutter: ^10.5.0
   google_fonts: ^6.2.1
+  shared_preferences: ^2.3.3
   url_launcher: ^6.3.0
 
 dev_dependencies:
@@ -30,3 +32,7 @@ flutter:
     - assets/images/admin.png
     - assets/images/kurirhome.png
     - assets/images/logo.png
+    - assets/images/qin.jpg
+    - assets/images/komunikasi.png
+    - assets/images/integrasi.jpg
+    - assets/images/backgroundd.jpg

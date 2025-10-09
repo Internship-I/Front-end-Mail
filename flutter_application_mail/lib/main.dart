@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'config/app_routes.dart';
+import '../../routes/router.dart';
 import 'presentation/screen/dashboard.dart';
 import 'presentation/screen/intro_page.dart';
 import 'presentation/screen/login_screen.dart';
 import 'presentation/screen/home_screen.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized(); // Aman untuk async ops
   runApp(const MyApp());
 }
 
