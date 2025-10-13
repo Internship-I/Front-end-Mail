@@ -1,281 +1,341 @@
-// ignore_for_file: prefer_const_constructors
-
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:ui';
 
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+class ProfileScreenNew extends StatefulWidget {
+  const ProfileScreenNew({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  State<ProfileScreenNew> createState() => _ProfileScreenNewState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen>
-    with TickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _fadeHeader;
-  late Animation<double> _fadeAvatar;
-  late Animation<double> _fadeName;
-  late Animation<double> _fadeBox;
-  late Animation<double> _fadeButton;
-  late Animation<double> _fadeSocial;
+class _ProfileScreenNewState extends State<ProfileScreenNew> {
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
+  Timer? _autoSlideTimer;
 
   @override
   void initState() {
     super.initState();
 
-    _controller =
-        AnimationController(vsync: this, duration: const Duration(seconds: 2));
+    // Auto-slide PageView setiap 4 detik
+    _autoSlideTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
+      if (!mounted) return;
+      if (!_pageController.hasClients) return;
 
-    _fadeHeader = CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.0, 0.15, curve: Curves.easeOut));
-    _fadeAvatar = CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.15, 0.3, curve: Curves.easeOut));
-    _fadeName = CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.3, 0.45, curve: Curves.easeOut));
-    _fadeBox = CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.45, 0.7, curve: Curves.easeOut));
-    _fadeButton = CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.7, 0.85, curve: Curves.easeOut));
-    _fadeSocial = CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.85, 1.0, curve: Curves.easeOut));
+      if (_currentPage < 2) {
+        _currentPage++;
+      } else {
+        _currentPage = 0;
+      }
 
-    _controller.forward();
+      _pageController.animateToPage(
+        _currentPage,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+      setState(() {});
+    });
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _autoSlideTimer?.cancel();
+    _pageController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    const mainColor = Color(0xFF0B1650);
-    const goldAccent = Color(0xFFD4AF37);
+    const Color navy = Color(0xFF0A1D37);
+    const Color white = Colors.white;
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          // 🔹 Background gradient lembut
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFFF9F9FB), Color(0xFFEFEFF3)],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+      backgroundColor: white,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ===== HEADER ATAS =====
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Image.asset("assets/images/poslogo.png",
+                          width: 38, height: 38),
+                      const SizedBox(width: 8),
+                      Image.asset("assets/images/danantara.png",
+                          width: 38, height: 38),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.notifications_none_rounded,
+                            color: navy, size: 26),
+                      ),
+                      const CircleAvatar(
+                        radius: 30,
+                        backgroundImage: AssetImage('assets/images/qin.jpg'),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            ),
-          ),
 
-          // 🔹 Siluet logo transparan besar
-          Positioned.fill(
-            child: Opacity(
-              opacity: 0.04,
-              child: Center(
-                child: Image.asset(
-                  "assets/images/poslogo.png",
-                  width: 500,
-                  height: 500,
-                  fit: BoxFit.contain,
+              const SizedBox(height: 16),
+
+              // ===== TITLE =====
+              Padding(
+                padding: const EdgeInsets.only(left: 4, top: 8),
+                child: Text(
+                  "Profile Page\nKurir",
+                  style: GoogleFonts.poppins(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w700,
+                    color: navy,
+                  ),
                 ),
               ),
-            ),
-          ),
 
-          SafeArea(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+              const SizedBox(height: 20),
+
+              // ===== CATEGORY BUTTONS =====
+              Row(
+                children: [
+                  _buildCategoryButton("Connection", _currentPage == 0, navy),
+                  const SizedBox(width: 8),
+                  _buildCategoryButton("Statistics", _currentPage == 1, navy),
+                  const SizedBox(width: 8),
+                  _buildCategoryButton("Item", _currentPage == 2, navy),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              // ===== PAGEVIEW SECTION =====
+              Expanded(
+                child: PageView(
+                  controller: _pageController,
+                  onPageChanged: (index) {
+                    setState(() => _currentPage = index);
+                  },
                   children: [
-                    // 🔹 Header Logo
-                    FadeTransition(
-                      opacity: _fadeHeader,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Image.asset("assets/images/poslogo.png",
-                              width: 55, height: 55),
-                          const SizedBox(width: 10),
-                          Image.asset("assets/images/danantara.png",
-                              width: 55, height: 55),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 20), // ⬆️ dikurangi dari 40
-
-                    // 🔹 Avatar Elegan
-                    FadeTransition(
-                      opacity: _fadeAvatar,
-                      child: ScaleTransition(
-                        scale: Tween<double>(begin: 0.9, end: 1.0)
-                            .animate(_fadeAvatar),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: goldAccent.withOpacity(0.3),
-                                blurRadius: 25,
-                                spreadRadius: 2,
-                                offset: const Offset(0, 6),
-                              ),
-                            ],
-                          ),
-                          child: const CircleAvatar(
-                            radius: 58,
-                            backgroundImage:
-                                AssetImage("assets/images/qin.jpg"),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 10), // ⬆️ lebih rapat dari 18
-
-                    // 🔹 Nama dan Jabatan
-                    FadeTransition(
-                      opacity: _fadeName,
-                      child: Column(
-                        children: [
-                          Text(
-                            "Muhammad Qinthar",
-                            style: GoogleFonts.poppins(
-                              fontSize: 26,
-                              fontWeight: FontWeight.w700,
-                              color: mainColor,
-                            ),
-                          ),
-                          const SizedBox(height: 3),
-                          Text(
-                            "Kurir Profesional | PT Pos Indonesia",
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              color: Colors.grey.shade700,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 25), // ⬆️ dikurangi dari 35
-
-                    // 🔹 Info Card
-                    FadeTransition(
-                      opacity: _fadeBox,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(25),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.5),
-                              borderRadius: BorderRadius.circular(25),
-                              border: Border.all(
-                                  color: Colors.black.withOpacity(0.08)),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.04),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 3),
-                                ),
-                              ],
-                            ),
-                            padding: const EdgeInsets.all(20),
-                            child: Column(
-                              children: [
-                                _infoCard(Icons.badge_outlined, "Jabatan",
-                                    "Ketua Kurir", mainColor),
-                                const SizedBox(height: 14),
-                                _infoCard(Icons.phone_outlined, "Nomor Telepon",
-                                    "+62 821 2785 4156", goldAccent),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 25), // ⬆️ lebih kecil dari 35
-
-                    // 🔹 Tombol Logout Premium
-                    FadeTransition(
-                      opacity: _fadeButton,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 90),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.pushReplacementNamed(context, '/login');
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: mainColor,
-                            elevation: 5,
-                            shadowColor: mainColor.withOpacity(0.3),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(35),
-                            ),
-                            padding: const EdgeInsets.symmetric(vertical: 13),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.logout, color: Colors.white),
-                              const SizedBox(width: 10),
-                              Text(
-                                "Keluar",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 25),
-
-                    // 🔹 Social Media Icons Modern
-                    FadeTransition(
-                      opacity: _fadeSocial,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          _SocialIcon(icon: Icons.chat, label: "Chat"),
-                          SizedBox(width: 18),
-                          _SocialIcon(icon: Icons.code, label: "GitHub"),
-                          SizedBox(width: 18),
-                          _SocialIcon(
-                              icon: Icons.alternate_email, label: "Email"),
-                          SizedBox(width: 18),
-                          _SocialIcon(
-                              icon: Icons.business_center, label: "LinkedIn"),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 30),
-
-                    const SizedBox(height: 10),
+                    _buildConnectionPage(navy),
+                    _buildStatisticsPage(navy),
+                    _buildShopPage(navy),
                   ],
                 ),
               ),
+
+              // ===== SOSMED ICONS =====
+              const SizedBox(height: 16),
+              Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildSocialIcon(
+                        icon: Icons.email_rounded,
+                        color: Colors.black54,
+                        onTap: () {}),
+                    const SizedBox(width: 20),
+                    _buildSocialIcon(
+                        icon: Icons.chat_rounded,
+                        color: Colors.black54,
+                        onTap: () {}),
+                    const SizedBox(width: 20),
+                    _buildSocialIcon(
+                        icon: Icons.camera_alt_rounded,
+                        color: Colors.black54,
+                        onTap: () {}),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              // ===== FOOTER =====
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text("Supported By",
+                          style: GoogleFonts.poppins(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black87)),
+                      const SizedBox(width: 6),
+                      Image.asset("assets/images/poslogo.png",
+                          width: 26, height: 26),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ===== CATEGORY BUTTON =====
+  Widget _buildCategoryButton(String text, bool isActive, Color navy) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(
+          color: isActive ? navy : Colors.grey[200],
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Center(
+          child: Text(text,
+              style: GoogleFonts.poppins(
+                color: isActive ? Colors.white : navy,
+                fontWeight: FontWeight.w500,
+              )),
+        ),
+      ),
+    );
+  }
+
+  // ===== PAGE: CONNECTION (Scroll Aktif) =====
+  Widget _buildConnectionPage(Color navy) {
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: navy.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Attendance for courier",
+                style: GoogleFonts.poppins(
+                    color: navy, fontWeight: FontWeight.w700, fontSize: 16)),
+            const SizedBox(height: 6),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Scan the device’s QR to connect",
+                    style: GoogleFonts.poppins(
+                        color: Colors.black54, fontSize: 12)),
+                const Icon(Icons.qr_code_rounded, color: Colors.black),
+              ],
+            ),
+            const SizedBox(height: 20),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Image.asset('assets/images/katakata.png',
+                  height: 160, width: double.infinity, fit: BoxFit.cover),
+            ),
+            const SizedBox(height: 20),
+            Text("MailApp.",
+                style: GoogleFonts.poppins(
+                    color: navy, fontSize: 42, fontWeight: FontWeight.bold)),
+            Text("For Couriers",
+                style: GoogleFonts.poppins(
+                    color: Colors.black54, fontSize: 13, letterSpacing: 2)),
+            const SizedBox(height: 100),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ===== PAGE: STATISTICS =====
+  Widget _buildStatisticsPage(Color navy) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: navy.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Delivery Statistics",
+              style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w700, fontSize: 18, color: navy)),
+          const SizedBox(height: 16),
+          Expanded(
+            child: CustomPaint(
+              painter: DeliveryCurveChartPainter(),
+              child: Container(),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: const [
+              Text("10 Oct",
+                  style: TextStyle(fontSize: 12, color: Colors.black54)),
+              Text("11 Oct",
+                  style: TextStyle(fontSize: 12, color: Colors.black54)),
+              Text("12 Oct",
+                  style: TextStyle(fontSize: 12, color: Colors.black54)),
+              Text("13 Oct",
+                  style: TextStyle(fontSize: 12, color: Colors.black54)),
+              Text("14 Oct",
+                  style: TextStyle(fontSize: 12, color: Colors.black54)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ===== PAGE: SHOP =====
+  Widget _buildShopPage(Color navy) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: navy.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Item Section",
+              style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w700, fontSize: 18, color: navy)),
+          const SizedBox(height: 16),
+          Expanded(
+            child: ListView(
+              physics: const BouncingScrollPhysics(),
+              children: [
+                _buildShopItem("Dokumen", "Rp 250.000", navy),
+                _buildShopItem("Paket Elektronik", "Rp 90.000", navy),
+                _buildShopItem("Makanan Sehat", "Rp 120.000", navy),
+              ],
             ),
           ),
         ],
@@ -283,102 +343,83 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _infoCard(
-      IconData icon, String title, String value, Color highlightColor) {
+  // ===== SHOP ITEM =====
+  Widget _buildShopItem(String name, String price, Color navy) {
     return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-              color: highlightColor.withOpacity(0.2),
-              blurRadius: 10,
-              offset: const Offset(0, 4))
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(name,
+              style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w500, color: navy)),
+          Text(price,
+              style: GoogleFonts.poppins(
+                  color: Colors.black54, fontWeight: FontWeight.w400)),
         ],
       ),
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-      child: Row(
-        children: [
-          Container(
-            width: 46,
-            height: 46,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [highlightColor, highlightColor.withOpacity(0.7)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              boxShadow: [
-                BoxShadow(
-                    color: highlightColor.withOpacity(0.5),
-                    blurRadius: 8,
-                    offset: const Offset(0, 3)),
-              ],
-            ),
-            child: Icon(icon, color: Colors.white, size: 22),
-          ),
-          const SizedBox(width: 15),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title,
-                    style: GoogleFonts.poppins(
-                        fontSize: 13, color: Colors.black54)),
-                Text(value,
-                    style: GoogleFonts.poppins(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black)),
-              ],
-            ),
-          ),
-        ],
+    );
+  }
+
+  // ===== ICON SOSMED =====
+  Widget _buildSocialIcon({
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: CircleAvatar(
+        radius: 24,
+        backgroundColor: color.withOpacity(0.1),
+        child: Icon(icon, color: color, size: 26),
       ),
     );
   }
 }
 
-class _SocialIcon extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  const _SocialIcon({required this.icon, required this.label});
+// ====== CUSTOM CURVE CHART UNTUK STATISTIK ======
+class DeliveryCurveChartPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Paint linePaint = Paint()
+      ..color = const Color(0xFF0A1D37)
+      ..strokeWidth = 3
+      ..style = PaintingStyle.stroke;
+
+    final Paint dotPaint = Paint()
+      ..color = const Color(0xFF0A1D37)
+      ..style = PaintingStyle.fill;
+
+    // Contoh data jumlah pengiriman per hari
+    final List<double> data = [6, 8, 4, 9, 5];
+    final double maxY = 10;
+
+    final Path path = Path();
+    for (int i = 0; i < data.length; i++) {
+      final double x = (i / (data.length - 1)) * size.width;
+      final double y = size.height * (1 - (data[i] / maxY));
+
+      if (i == 0) {
+        path.moveTo(x, y);
+      } else {
+        final double prevX = ((i - 1) / (data.length - 1)) * size.width;
+        final double prevY = size.height * (1 - (data[i - 1] / maxY));
+        path.quadraticBezierTo((prevX + x) / 2, (prevY + y) / 2, x, y);
+      }
+
+      // titik data
+      canvas.drawCircle(Offset(x, y), 4, dotPaint);
+    }
+
+    canvas.drawPath(path, linePaint);
+  }
 
   @override
-  Widget build(BuildContext context) {
-    const mainColor = Color.fromARGB(255, 255, 255, 255);
-    return Column(
-      children: [
-        Container(
-          width: 52,
-          height: 52,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color.fromARGB(255, 9, 21, 109), Color(0xFF223A7A)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: const Color.fromARGB(255, 5, 5, 124).withOpacity(0.25),
-                blurRadius: 8,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Icon(icon, color: Colors.white, size: 24),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          label,
-          style: GoogleFonts.poppins(
-            fontSize: 11,
-            color: Colors.grey.shade700,
-          ),
-        ),
-      ],
-    );
-  }
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

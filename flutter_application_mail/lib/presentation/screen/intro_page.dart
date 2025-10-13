@@ -50,7 +50,7 @@ class _IntroPageState extends State<IntroPage> {
       if (nextPage >= slides.length) nextPage = 0;
       _pageController.animateToPage(
         nextPage,
-        duration: const Duration(milliseconds: 400),
+        duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
       setState(() => _currentPage = nextPage);
