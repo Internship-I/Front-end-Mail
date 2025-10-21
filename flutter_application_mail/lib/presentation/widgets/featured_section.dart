@@ -36,7 +36,7 @@ class FeaturedSection extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
             decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 68, 93, 255),
+              color: const Color.fromARGB(255, 12, 25, 111),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
@@ -90,10 +90,11 @@ class FeaturedSection extends StatelessWidget {
             width: 70,
             height: 70,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Color.fromARGB(255, 255, 255, 255),
               shape: BoxShape.circle,
               border: Border.all(
-                color: const Color(0xFF00AEEF), // garis biru elegan
+                color:
+                    const Color.fromARGB(255, 8, 20, 76), // garis biru elegan
                 width: 1.5,
               ),
               boxShadow: [

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../widgets/Profile/index_profile.dart'; // Import statistik dan item
 
 class ProfileScreenNew extends StatefulWidget {
   const ProfileScreenNew({super.key});
@@ -18,17 +19,11 @@ class _ProfileScreenNewState extends State<ProfileScreenNew> {
   void initState() {
     super.initState();
 
-    // Auto-slide PageView setiap 4 detik
-    _autoSlideTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
+    _autoSlideTimer = Timer.periodic(const Duration(seconds: 6), (timer) {
       if (!mounted) return;
       if (!_pageController.hasClients) return;
 
-      if (_currentPage < 2) {
-        _currentPage++;
-      } else {
-        _currentPage = 0;
-      }
-
+      _currentPage = (_currentPage + 1) % 3;
       _pageController.animateToPage(
         _currentPage,
         duration: const Duration(milliseconds: 500),
@@ -58,28 +53,40 @@ class _ProfileScreenNewState extends State<ProfileScreenNew> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ===== HEADER ATAS =====
+              // ===== HEADER =====
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Row(
                     children: [
                       Image.asset("assets/images/poslogo.png",
-                          width: 38, height: 38),
-                      const SizedBox(width: 8),
+                          width: 50, height: 50, fit: BoxFit.contain),
+                      const SizedBox(width: 10),
                       Image.asset("assets/images/danantara.png",
-                          width: 38, height: 38),
+                          width: 60, height: 60, fit: BoxFit.contain),
                     ],
                   ),
                   Row(
                     children: [
-                      IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Icons.notifications_none_rounded,
-                            color: navy, size: 26),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text("Hi,",
+                              style: GoogleFonts.poppins(
+                                  fontSize: 13,
+                                  color: Colors.black54,
+                                  fontWeight: FontWeight.w400)),
+                          Text("Muhammad Qinthar",
+                              style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: navy)),
+                        ],
                       ),
+                      const SizedBox(width: 10),
                       const CircleAvatar(
-                        radius: 30,
+                        radius: 28,
                         backgroundImage: AssetImage('assets/images/qin.jpg'),
                       ),
                     ],
@@ -89,16 +96,12 @@ class _ProfileScreenNewState extends State<ProfileScreenNew> {
 
               const SizedBox(height: 16),
 
-              // ===== TITLE =====
               Padding(
                 padding: const EdgeInsets.only(left: 4, top: 8),
                 child: Text(
-                  "Profile Page\nKurir",
+                  "Profile Page",
                   style: GoogleFonts.poppins(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w700,
-                    color: navy,
-                  ),
+                      fontSize: 26, fontWeight: FontWeight.w700, color: navy),
                 ),
               ),
 
@@ -125,58 +128,14 @@ class _ProfileScreenNewState extends State<ProfileScreenNew> {
                   },
                   children: [
                     _buildConnectionPage(navy),
-                    _buildStatisticsPage(navy),
-                    _buildShopPage(navy),
+                    const StatisticsWidget(), // dari file statistics.dart
+                    const ItemWidget(), // dari file item.dart
                   ],
                 ),
               ),
 
-              // ===== SOSMED ICONS =====
               const SizedBox(height: 16),
-              Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildSocialIcon(
-                        icon: Icons.email_rounded,
-                        color: Colors.black54,
-                        onTap: () {}),
-                    const SizedBox(width: 20),
-                    _buildSocialIcon(
-                        icon: Icons.chat_rounded,
-                        color: Colors.black54,
-                        onTap: () {}),
-                    const SizedBox(width: 20),
-                    _buildSocialIcon(
-                        icon: Icons.camera_alt_rounded,
-                        color: Colors.black54,
-                        onTap: () {}),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 10),
-
-              // ===== FOOTER =====
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text("Supported By",
-                          style: GoogleFonts.poppins(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black87)),
-                      const SizedBox(width: 6),
-                      Image.asset("assets/images/poslogo.png",
-                          width: 26, height: 26),
-                    ],
-                  ),
-                ),
-              ),
+              _buildFooter(),
             ],
           ),
         ),
@@ -184,7 +143,6 @@ class _ProfileScreenNewState extends State<ProfileScreenNew> {
     );
   }
 
-  // ===== CATEGORY BUTTON =====
   Widget _buildCategoryButton(String text, bool isActive, Color navy) {
     return Expanded(
       child: Container(
@@ -196,15 +154,13 @@ class _ProfileScreenNewState extends State<ProfileScreenNew> {
         child: Center(
           child: Text(text,
               style: GoogleFonts.poppins(
-                color: isActive ? Colors.white : navy,
-                fontWeight: FontWeight.w500,
-              )),
+                  color: isActive ? Colors.white : navy,
+                  fontWeight: FontWeight.w500)),
         ),
       ),
     );
   }
 
-  // ===== PAGE: CONNECTION (Scroll Aktif) =====
   Widget _buildConnectionPage(Color navy) {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -239,14 +195,11 @@ class _ProfileScreenNewState extends State<ProfileScreenNew> {
             ),
             const SizedBox(height: 20),
             ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: Image.asset('assets/images/katakata.png',
-                  height: 160, width: double.infinity, fit: BoxFit.cover),
+              borderRadius: BorderRadius.circular(5),
+              child: Image.asset('assets/images/logo.png',
+                  height: 230, width: double.infinity, fit: BoxFit.cover),
             ),
             const SizedBox(height: 20),
-            Text("MailApp.",
-                style: GoogleFonts.poppins(
-                    color: navy, fontSize: 42, fontWeight: FontWeight.bold)),
             Text("For Couriers",
                 style: GoogleFonts.poppins(
                     color: Colors.black54, fontSize: 13, letterSpacing: 2)),
@@ -257,169 +210,49 @@ class _ProfileScreenNewState extends State<ProfileScreenNew> {
     );
   }
 
-  // ===== PAGE: STATISTICS =====
-  Widget _buildStatisticsPage(Color navy) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: navy.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Delivery Statistics",
-              style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.w700, fontSize: 18, color: navy)),
-          const SizedBox(height: 16),
-          Expanded(
-            child: CustomPaint(
-              painter: DeliveryCurveChartPainter(),
-              child: Container(),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text("10 Oct",
-                  style: TextStyle(fontSize: 12, color: Colors.black54)),
-              Text("11 Oct",
-                  style: TextStyle(fontSize: 12, color: Colors.black54)),
-              Text("12 Oct",
-                  style: TextStyle(fontSize: 12, color: Colors.black54)),
-              Text("13 Oct",
-                  style: TextStyle(fontSize: 12, color: Colors.black54)),
-              Text("14 Oct",
-                  style: TextStyle(fontSize: 12, color: Colors.black54)),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ===== PAGE: SHOP =====
-  Widget _buildShopPage(Color navy) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: navy.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Item Section",
-              style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.w700, fontSize: 18, color: navy)),
-          const SizedBox(height: 16),
-          Expanded(
-            child: ListView(
-              physics: const BouncingScrollPhysics(),
+  Widget _buildFooter() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15), // posisi agak naik ke atas
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // === ICON SOSMED ===
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildShopItem("Dokumen", "Rp 250.000", navy),
-                _buildShopItem("Paket Elektronik", "Rp 90.000", navy),
-                _buildShopItem("Makanan Sehat", "Rp 120.000", navy),
+                Icon(Icons.email, size: 22, color: Colors.black54),
+                const SizedBox(width: 16),
+                Icon(Icons.chat_bubble, size: 22, color: Colors.black54),
+                const SizedBox(width: 16),
+                Icon(Icons.camera_alt, size: 22, color: Colors.black54),
               ],
             ),
-          ),
-        ],
+            const SizedBox(height: 15),
+
+            // === SUPPORTED BY ===
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "Supported By",
+                  style: GoogleFonts.poppins(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(width: 6), // jarak lebih rapat ke logo
+                Image.asset(
+                  "assets/images/poslogo.png",
+                  width: 26,
+                  height: 26,
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
-
-  // ===== SHOP ITEM =====
-  Widget _buildShopItem(String name, String price, Color navy) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(name,
-              style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.w500, color: navy)),
-          Text(price,
-              style: GoogleFonts.poppins(
-                  color: Colors.black54, fontWeight: FontWeight.w400)),
-        ],
-      ),
-    );
-  }
-
-  // ===== ICON SOSMED =====
-  Widget _buildSocialIcon({
-    required IconData icon,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: CircleAvatar(
-        radius: 24,
-        backgroundColor: color.withOpacity(0.1),
-        child: Icon(icon, color: color, size: 26),
-      ),
-    );
-  }
-}
-
-// ====== CUSTOM CURVE CHART UNTUK STATISTIK ======
-class DeliveryCurveChartPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final Paint linePaint = Paint()
-      ..color = const Color(0xFF0A1D37)
-      ..strokeWidth = 3
-      ..style = PaintingStyle.stroke;
-
-    final Paint dotPaint = Paint()
-      ..color = const Color(0xFF0A1D37)
-      ..style = PaintingStyle.fill;
-
-    // Contoh data jumlah pengiriman per hari
-    final List<double> data = [6, 8, 4, 9, 5];
-    final double maxY = 10;
-
-    final Path path = Path();
-    for (int i = 0; i < data.length; i++) {
-      final double x = (i / (data.length - 1)) * size.width;
-      final double y = size.height * (1 - (data[i] / maxY));
-
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        final double prevX = ((i - 1) / (data.length - 1)) * size.width;
-        final double prevY = size.height * (1 - (data[i - 1] / maxY));
-        path.quadraticBezierTo((prevX + x) / 2, (prevY + y) / 2, x, y);
-      }
-
-      // titik data
-      canvas.drawCircle(Offset(x, y), 4, dotPaint);
-    }
-
-    canvas.drawPath(path, linePaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
