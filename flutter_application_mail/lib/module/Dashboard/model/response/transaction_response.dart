@@ -29,7 +29,7 @@ class TransactionResponse {
 
   factory TransactionResponse.fromJson(Map<String, dynamic> json) {
     return TransactionResponse(
-      id: json["_id"]?.toString() ?? '', // ✅ ambil dari _id
+      id: json["id"]?.toString() ?? '', // ✅ gunakan "id" bukan "_id"
       consignmentNote: json["consignment_note"]?.toString() ?? '-',
       senderName: json["sender_name"]?.toString() ?? '-',
       senderPhone: json["sender_phone"]?.toString() ?? '-',

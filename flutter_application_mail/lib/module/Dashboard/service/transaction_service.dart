@@ -25,7 +25,7 @@ class TransactionService {
 
         return data.map((json) {
           // Debug tiap elemen
-          debugPrint("🟢 Item JSON: $json");
+          debugPrint("🟢 Item JSON: $json"  );
 
           // Pastikan semua key ada agar gak null error
           return TransactionResponse.fromJson({

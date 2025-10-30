@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../widgets/exclusive_table.dart';
+import '../widgets/CourierDashboard/index_courier_dashboard.dart';
 import '../../module/Dashboard/controller/transaction_controller.dart';
 
 class CourierDashboard extends StatefulWidget {
@@ -21,9 +21,14 @@ class _CourierDashboardState extends State<CourierDashboard> {
     String consignmentNote,
     String receiverName,
     String price,
+    String senderName, // 🔹 Tambah parameter sender
   ) async {
-    final message =
-        "Hai Sahabat Pos 👋, atas nama $receiverName, paket COD Anda dengan resi $consignmentNote senilai Rp $price sedang dalam pengantaran 🚚📦.";
+    // Pesan berbeda tergantung COD atau Non-COD
+    final isNonCod = price == "Non-COD";
+    final message = isNonCod
+        ? "Hai Sahabat Pos 👋, atas nama $receiverName, paket Non-COD Anda sedang dalam pengantaran 🚚📦 oleh kurir $senderName."
+        : "Hai Sahabat Pos 👋, atas nama $receiverName, paket COD Anda dengan resi $consignmentNote senilai $price sedang dalam pengantaran 🚚📦 oleh kurir $senderName.";
+
     final encoded = Uri.encodeComponent(message);
     final url = Uri.parse("https://wa.me/$phone?text=$encoded");
 
@@ -36,7 +41,6 @@ class _CourierDashboardState extends State<CourierDashboard> {
   void initState() {
     super.initState();
 
-    // Load data API setelah widget selesai dibangun
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<TransactionController>(context, listen: false)
           .loadTransactions();
@@ -62,7 +66,7 @@ class _CourierDashboardState extends State<CourierDashboard> {
       body: SafeArea(
         child: Stack(
           children: [
-            // === HEADER PUTIH DENGAN SUDUT LENGKUNG ===
+            // HEADER PUTIH
             Container(
               height: 180,
               decoration: const BoxDecoration(
@@ -81,48 +85,61 @@ class _CourierDashboardState extends State<CourierDashboard> {
               ),
             ),
 
-            // === KONTEN UTAMA ===
             Consumer<TransactionController>(
               builder: (context, controller, child) {
                 if (controller.isLoading) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const IntroLoadingPage();
                 }
 
-                // Debug: pastikan data dari API berbeda
-                for (var t in controller.transactions) {
-                  debugPrint(
-                      "➡️ ${t.receiverName} | ${t.receiverPhone} | ${t.itemContent}");
-                }
-
-                // === FILTER PENCARIAN ===
+                // Filter pencarian
                 final filteredTransactions = controller.transactions.where((t) {
                   final receiver = t.receiverName.toLowerCase();
                   final phone = t.receiverPhone.toLowerCase();
                   final note = t.consignmentNote.toLowerCase();
                   final address = t.addressReceiver.toLowerCase();
+                  final sender = t.senderName.toLowerCase();
                   return receiver.contains(searchQuery) ||
                       phone.contains(searchQuery) ||
                       note.contains(searchQuery) ||
-                      address.contains(searchQuery);
+                      address.contains(searchQuery) ||
+                      sender.contains(searchQuery);
                 }).toList();
 
                 // === KONVERSI DATA KE FORMAT TABLE ===
-                final recipients = filteredTransactions
-                    .map((t) => {
-                          "ReceiverName": t.receiverName,
-                          "SenderName": t.senderName,
-                          "ConsignmentNote": t.consignmentNote,
-                          "PhoneNumber": t.receiverPhone,
-                          "Price": t.codValue.toString(),
-                          "ItemContent": t.itemContent,
-                          "AddressReceiver": t.addressReceiver,
-                          "DeliveryStatus": "In Progress",
-                        })
-                    .toList();
+                final recipients = filteredTransactions.map((t) {
+                  final formattedDate = t.createdAt.split('T').first;
+
+                  // Tambahkan titik ribuan dan Non-COD
+                  final codDisplay = (t.codValue == 0)
+                      ? "Non-COD"
+                      : "Rp ${t.codValue.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}";
+
+                  // Tambahkan status lengkap dengan kurir
+                  final deliveryStatus = (t.codValue == 0)
+                      ? "Paket Non-COD akan dikirimkan oleh kurir ${t.senderName}"
+                      : "Paket COD (${codDisplay}) akan dikirimkan oleh kurir ${t.senderName}";
+
+                  return {
+                    "ID": t.id,
+                    "ConsignmentNote": t.consignmentNote,
+                    "SenderName": t.senderName,
+                    "SenderPhone": t.senderPhone,
+                    "ReceiverName": t.receiverName,
+                    "ReceiverPhone": t.receiverPhone,
+                    "AddressReceiver": t.addressReceiver,
+                    "ItemContent": t.itemContent,
+                    "ServiceType": t.serviceType,
+                    "CODValue": codDisplay,
+                    "CreatedAt": formattedDate,
+                    "DeliveryStatus": deliveryStatus,
+                  };
+                }).toList();
 
                 return Column(
                   children: [
                     const SizedBox(height: 20),
+
+                    // Logo Header
                     Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 18.0, vertical: 10),
@@ -142,13 +159,13 @@ class _CourierDashboardState extends State<CourierDashboard> {
                       ),
                     ),
 
-                    // === JUDUL ===
+                    // Judul
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          "Daftar Pengiriman Hari Ini",
+                          "Shipping Dashboard",
                           style: GoogleFonts.poppins(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
@@ -160,7 +177,7 @@ class _CourierDashboardState extends State<CourierDashboard> {
 
                     const SizedBox(height: 12),
 
-                    // === SEARCH BAR ===
+                    // Search bar
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Container(
@@ -182,7 +199,7 @@ class _CourierDashboardState extends State<CourierDashboard> {
                             prefixIcon:
                                 const Icon(Icons.search, color: Colors.grey),
                             hintText:
-                                "Cari penerima, resi, nomor HP, atau alamat...",
+                                "Cari penerima, pengirim, resi, nomor HP, atau alamat...",
                             hintStyle: GoogleFonts.poppins(
                               color: Colors.black.withOpacity(0.5),
                               fontSize: 13.5,
@@ -197,7 +214,7 @@ class _CourierDashboardState extends State<CourierDashboard> {
 
                     const SizedBox(height: 16),
 
-                    // === TABLE / DAFTAR PENGIRIMAN ===
+                    // TABEL
                     Expanded(
                       child: recipients.isEmpty
                           ? Center(
@@ -222,7 +239,14 @@ class _CourierDashboardState extends State<CourierDashboard> {
                               ),
                               child: ExclusiveTable(
                                 recipients: recipients,
-                                onWhatsAppPressed: _openWhatsApp,
+                                onWhatsAppPressed:
+                                    (phone, note, receiver, cod) {
+                                  final sender = recipients.firstWhere((r) =>
+                                      r["ReceiverPhone"] ==
+                                      phone)["SenderName"];
+                                  _openWhatsApp(phone, note, receiver, cod,
+                                      sender ?? "-");
+                                },
                               ),
                             ),
                     ),

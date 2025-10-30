@@ -26,9 +26,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screen = MediaQuery.of(context).size;
+    final isTablet = screen.width > 600;
+
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(child: _pages[_selectedIndex]),
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: isTablet ? 600 : double.infinity,
+            ),
+            child: _pages[_selectedIndex],
+          ),
+        ),
+      ),
       bottomNavigationBar: BottomNavbar(
         currentIndex: _selectedIndex,
         onTap: (index) {
@@ -74,288 +86,240 @@ class _HomePageState extends State<_HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final screen = MediaQuery.of(context).size;
+    final isTablet = screen.width > 600;
+
     return Stack(
       children: [
         SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          child: Column(
-            children: [
-              // === BAGIAN ATAS DENGAN BG NAVY ===
-              Stack(
-                children: [
-                  // === BACKGROUND GRADIENT NAVY ===
-                  Container(
-                    width: double.infinity,
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Color.fromARGB(255, 6, 13, 91),
-                          Color.fromARGB(255, 6, 13, 91),
-                        ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                      ),
-                    ),
-                    child: const SizedBox(height: 400),
-                  ),
-
-                  // // === HIASAN LINGKARAN ELEGAN ===
-                  // Positioned(
-                  //   top: -40,
-                  //   left: -40,
-                  //   child: Container(
-                  //     width: 245,
-                  //     height: 140,
-                  //     decoration: BoxDecoration(
-                  //       shape: BoxShape.circle,
-                  //       gradient: LinearGradient(
-                  //         colors: [
-                  //           const Color.fromARGB(255, 255, 255, 255),
-                  //           const Color.fromARGB(255, 255, 255, 255),
-                  //         ],
-                  //         begin: Alignment.topLeft,
-                  //         end: Alignment.bottomRight,
-                  //       ),
-                  //       boxShadow: [
-                  //         BoxShadow(
-                  //           color: Colors.blue.withOpacity(0.15),
-                  //           blurRadius: 25,
-                  //           spreadRadius: 5,
-                  //         ),
-                  //       ],
-                  //     ),
-                  //   ),
-                  // ),
-
-                  // Positioned(
-                  //   bottom: 60,
-                  //   right: -40,
-                  //   child: Container(
-                  //     width: 140,
-                  //     height: 140,
-                  //     decoration: BoxDecoration(
-                  //       shape: BoxShape.circle,
-                  //       gradient: LinearGradient(
-                  //         colors: [
-                  //           const Color.fromARGB(255, 255, 255, 255),
-                  //           const Color.fromARGB(255, 255, 255, 255),
-                  //         ],
-                  //         begin: Alignment.bottomRight,
-                  //         end: Alignment.topLeft,
-                  //       ),
-                  //       boxShadow: [
-                  //         BoxShadow(
-                  //           color: Colors.blueAccent.withOpacity(0.1),
-                  //           blurRadius: 20,
-                  //           offset: const Offset(0, 4),
-                  //         ),
-                  //       ],
-                  //     ),
-                  //   ),
-                  // ),
-
-                  // Positioned(
-                  //   top: 120,
-                  //   right: 40,
-                  //   child: Container(
-                  //     width: 80,
-                  //     height: 80,
-                  //     decoration: BoxDecoration(
-                  //       shape: BoxShape.circle,
-                  //       border: Border.all(
-                  //         color: const Color.fromARGB(255, 255, 255, 255)
-                  //             .withOpacity(0.25),
-                  //         width: 3,
-                  //       ),
-                  //       boxShadow: [
-                  //         BoxShadow(
-                  //           color: const Color.fromARGB(255, 255, 255, 255)
-                  //               .withOpacity(0.1),
-                  //           blurRadius: 10,
-                  //           offset: const Offset(2, 2),
-                  //         ),
-                  //       ],
-                  //     ),
-                  //   ),
-                  // ),
-
-                  // === KONTEN DI ATAS BACKGROUND ===
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // === BAR ATAS (LOGO + ICON) ===
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const LogoSection(),
-                            NotificationIcon(onTap: _toggleNotifications),
-                          ],
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: isTablet ? 30 : 0,
+            ),
+            child: Column(
+              children: [
+                // === BAGIAN ATAS DENGAN BG NAVY ===
+                Stack(
+                  children: [
+                    // === BACKGROUND IMAGE ===
+                    Container(
+                      width: double.infinity,
+                      decoration: const BoxDecoration(
+                        image: DecorationImage(
+                          image:
+                              AssetImage("assets/images/backgroundmail4.jpg"),
+                          fit: BoxFit.cover,
                         ),
+                      ),
+                      child: SizedBox(height: isTablet ? 360 : 320),
+                    ),
 
-                        const SizedBox(height: 20),
-
-                        // === SEARCH BAR ===
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          height: 45,
-                          decoration: BoxDecoration(
-                            color: const Color.fromARGB(255, 0, 0, 0)
-                                .withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(
-                                color: const Color.fromARGB(255, 255, 255, 255)
-                                    .withOpacity(0.3)),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.search,
-                                  color: Colors.white70, size: 22),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: TextField(
-                                  style:
-                                      GoogleFonts.poppins(color: Colors.white),
-                                  decoration: InputDecoration(
-                                    hintText: "Search...",
-                                    hintStyle: GoogleFonts.poppins(
-                                      color: const Color.fromARGB(
-                                          255, 255, 255, 255),
-                                      fontSize: 13,
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isTablet ? 30 : 20,
+                        vertical: isTablet ? 20 : 16,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // === SEARCH BAR ===
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            height: isTablet ? 50 : 45,
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.3),
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.search,
+                                    color: Colors.white70, size: 22),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: TextField(
+                                    style: GoogleFonts.poppins(
+                                        color: Colors.white),
+                                    decoration: InputDecoration(
+                                      hintText: "Search",
+                                      hintStyle: GoogleFonts.poppins(
+                                        color: Colors.white,
+                                        fontSize: 15,
+                                      ),
+                                      border: InputBorder.none,
                                     ),
-                                    border: InputBorder.none,
                                   ),
                                 ),
-                              ),
-                              const Icon(Icons.tune,
-                                  color: Colors.white70, size: 22),
-                            ],
-                          ),
-                        ),
-
-                        const SizedBox(height: 24),
-
-                        Text(
-                          "Hola! 👋",
-                          style: GoogleFonts.poppins(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                            color: const Color.fromARGB(255, 255, 255, 255),
-                          ),
-                        ),
-                        Text(
-                          "Sahabat Pos",
-                          style: GoogleFonts.poppins(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                            color: const Color.fromARGB(255, 255, 255, 255),
-                          ),
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        // === PROMO CARD ===
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                Color.fromARGB(255, 255, 255, 255), // biru muda
-                                Colors.white, // putih
+                                const Icon(Icons.tune,
+                                    color: Colors.white70, size: 22),
                               ],
                             ),
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
                           ),
-                          child: Row(
+                          const SizedBox(height: 24),
+
+                          // === TEKS HALO ===
+                          Stack(
                             children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "PT POS INDONESIA",
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w700,
-                                        color: const Color(0xFF0B1650),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      "Serve with heart.",
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 13,
-                                        color: Colors.black.withOpacity(0.65),
-                                        height: 1.4,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    ElevatedButton(
-                                      onPressed: () {},
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            const Color(0xFF0B1650),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                        ),
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 18, vertical: 10),
-                                      ),
-                                      child: Text(
-                                        "Visit Now",
-                                        style: GoogleFonts.poppins(
-                                          color: Colors.white,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                              Text(
+                                "Halo!",
+                                style: GoogleFonts.poppins(
+                                  fontSize: isTablet ? 24 : 20,
+                                  fontWeight: FontWeight.w700,
+                                  foreground: Paint()
+                                    ..style = PaintingStyle.stroke
+                                    ..strokeWidth = 2
+                                    ..color = Colors.black,
                                 ),
                               ),
-                              const SizedBox(width: 10),
-                              Image.asset(
-                                "assets/images/poslogo.png",
-                                width: 100,
-                                fit: BoxFit.contain,
+                              Text(
+                                "Halo!",
+                                style: GoogleFonts.poppins(
+                                  fontSize: isTablet ? 24 : 20,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
                               ),
                             ],
                           ),
-                        )
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+                          const SizedBox(height: 4),
+                          Stack(
+                            children: [
+                              Text(
+                                "Sahabat Pos",
+                                style: GoogleFonts.poppins(
+                                  fontSize: isTablet ? 22 : 18,
+                                  fontWeight: FontWeight.w700,
+                                  foreground: Paint()
+                                    ..style = PaintingStyle.stroke
+                                    ..strokeWidth = 2
+                                    ..color = Colors.black,
+                                ),
+                              ),
+                              Text(
+                                "Sahabat Pos",
+                                style: GoogleFonts.poppins(
+                                  fontSize: isTablet ? 22 : 18,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
 
-              // === BAGIAN PUTIH DI BAWAH ===
-              const SizedBox(height: 20),
-              const FeaturedSection(),
-              const SizedBox(height: 24),
-              const RoundedBanner(
-                title: "Aplikasi Untuk Kurir Pengiriman Paket",
-                subtitle: "Safe and reliable service.",
-                imagePath: "assets/images/logo.png",
-              ),
-              const SizedBox(height: 40),
-            ],
+                          const SizedBox(height: 20),
+
+                          // 🔽 Ganti bagian promo card dalam _HomePageState build()
+                          Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.all(
+                                isTablet ? 18 : 14), // sebelumnya 24 : 20
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius:
+                                  BorderRadius.circular(14), // sebelumnya 20
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.08),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
+                              border: Border.all(
+                                color: Colors.grey.shade300,
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "PT POS INDONESIA",
+                                        style: GoogleFonts.poppins(
+                                          fontSize:
+                                              isTablet ? 16 : 14, // 🔽 kecilkan
+                                          fontWeight: FontWeight.w700,
+                                          color: const Color(0xFF0B1650),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        "Serve with heart.",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: isTablet
+                                              ? 12
+                                              : 11, // 🔽 kecilkan sedikit
+                                          color: Colors.black.withOpacity(0.65),
+                                          height: 1.4,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      ElevatedButton(
+                                        onPressed: () {},
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                              const Color(0xFF0B1650),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                                10), // 🔽 kecilkan border
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 14,
+                                            vertical: 8,
+                                          ), // 🔽 kecilkan padding tombol
+                                        ),
+                                        child: Text(
+                                          "Visit Now",
+                                          style: GoogleFonts.poppins(
+                                            color: Colors.white,
+                                            fontSize: isTablet
+                                                ? 13
+                                                : 12, // 🔽 kecilkan
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Image.asset(
+                                  "assets/images/poslogo.png",
+                                  width: isTablet
+                                      ? 90
+                                      : 75, // 🔽 perkecil logo agar seimbang
+                                  fit: BoxFit.contain,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 20),
+                const FeaturedSection(),
+                const SizedBox(height: 24),
+                const RoundedBanner(
+                  title: "Aplikasi Untuk Kurir Pengiriman Paket",
+                  subtitle: "Safe and reliable service.",
+                  imagePath: "assets/images/logo.png",
+                ),
+                const SizedBox(height: 40),
+              ],
+            ),
           ),
         ),
 
-        // === NOTIFICATION PANEL DIPISAH KE FILE ===
+        // === NOTIFICATION PANEL ===
         if (_showNotifications)
           NotificationPanel(
             notifications: _notifications,
@@ -367,8 +331,6 @@ class _HomePageState extends State<_HomePage> {
   }
 }
 
-// 🔹 ROUNDED BANNER
-//
 class RoundedBanner extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -383,102 +345,107 @@ class RoundedBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.08),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
-            border: Border.all(
-              color: const Color(0xFFE0E0E0),
-              width: 1,
+    final screen = MediaQuery.of(context).size;
+    final isTablet = screen.width > 600;
+
+    return Center(
+      child: Container(
+        // 🔽 Lebih kecil & di tengah
+        width: screen.width * (isTablet ? 0.8 : 0.9),
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        padding: EdgeInsets.symmetric(
+          horizontal: isTablet ? 22 : 16,
+          vertical: isTablet ? 20 : 16,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10), // lebih kecil
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
             ),
+          ],
+          border: Border.all(
+            color: const Color(0xFFE0E0E0),
+            width: 1,
           ),
-          child: Row(
-            children: [
-              // Logo elegan
-              Container(
-                width: 70,
-                height: 70,
+        ),
+        child: Stack(
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: isTablet ? 65 : 55,
+                  height: isTablet ? 65 : 55,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF0B1650), Color(0xFF3949AB)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Image.asset(
+                      imagePath,
+                      fit: BoxFit.contain,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: GoogleFonts.poppins(
+                          fontSize: isTablet ? 15 : 14,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF0B1650),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle,
+                        style: GoogleFonts.poppins(
+                          fontSize: isTablet ? 13 : 12,
+                          color: Colors.black.withOpacity(0.65),
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            Positioned(
+              right: 8,
+              top: 6,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF0B1650), Color(0xFF3949AB)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
+                  color: const Color.fromARGB(255, 255, 73, 1),
+                  borderRadius: BorderRadius.circular(4),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: Image.asset(
-                    imagePath,
-                    fit: BoxFit.contain,
+                child: Text(
+                  "IKLAN",
+                  style: GoogleFonts.poppins(
                     color: Colors.white,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
-
-              const SizedBox(width: 20),
-
-              // Teks elegan
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: const Color(0xFF0B1650),
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      subtitle,
-                      style: GoogleFonts.poppins(
-                        fontSize: 13,
-                        color: Colors.black.withOpacity(0.65),
-                        height: 1.5,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        // Label “IKLAN”
-        Positioned(
-          right: 24,
-          top: 12,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: const Color(0xFF00AEEF),
-              borderRadius: BorderRadius.circular(6),
             ),
-            child: Text(
-              "IKLAN",
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

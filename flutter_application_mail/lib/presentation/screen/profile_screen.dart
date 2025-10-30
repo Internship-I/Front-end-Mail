@@ -99,9 +99,9 @@ class _ProfileScreenNewState extends State<ProfileScreenNew> {
               Padding(
                 padding: const EdgeInsets.only(left: 4, top: 8),
                 child: Text(
-                  "Profile Page",
+                  "Lihat semua aktifitas mu disini",
                   style: GoogleFonts.poppins(
-                      fontSize: 26, fontWeight: FontWeight.w700, color: navy),
+                      fontSize: 10, fontWeight: FontWeight.w700, color: navy),
                 ),
               ),
 
@@ -168,13 +168,6 @@ class _ProfileScreenNewState extends State<ProfileScreenNew> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: navy.withOpacity(0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
         ),
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -196,14 +189,14 @@ class _ProfileScreenNewState extends State<ProfileScreenNew> {
             const SizedBox(height: 20),
             ClipRRect(
               borderRadius: BorderRadius.circular(5),
-              child: Image.asset('assets/images/logo.png',
-                  height: 230, width: double.infinity, fit: BoxFit.cover),
+              child: Image.asset('assets/images/backgroundmail5.jpg',
+                  height: 270, width: double.infinity, fit: BoxFit.cover),
             ),
             const SizedBox(height: 20),
-            Text("For Couriers",
-                style: GoogleFonts.poppins(
-                    color: Colors.black54, fontSize: 13, letterSpacing: 2)),
-            const SizedBox(height: 100),
+            // Text("Scan the QR code to connect your device",
+            //     style: GoogleFonts.poppins(
+            //         color: Colors.black54, fontSize: 13, letterSpacing: 2)),
+            // const SizedBox(height: 100),
           ],
         ),
       ),
