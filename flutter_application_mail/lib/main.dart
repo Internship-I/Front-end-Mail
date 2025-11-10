@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import '../../routes/router.dart';
-import 'presentation/screen/dashboard.dart';
-import 'presentation/screen/intro_page.dart';
-import 'presentation/screen/login_screen.dart';
-import 'presentation/screen/home_screen.dart';
+import '../routes/router.dart';
 import 'module/Dashboard/controller/transaction_controller.dart';
 
 void main() {
@@ -31,12 +27,20 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         textTheme: GoogleFonts.poppinsTextTheme(),
       ),
+
+      // ✅ route awal aplikasi
       initialRoute: AppRoutes.intro,
-      routes: {
-        AppRoutes.intro: (context) => const IntroPage(),
-        AppRoutes.login: (context) => const LoginScreen(),
-        AppRoutes.home: (context) => const HomeScreen(),
-        AppRoutes.dashboard: (context) => const CourierDashboard(),
+
+      // ✅ gunakan route generator dari AppRoutes
+      onGenerateRoute: AppRoutes.generateRoute,
+
+      // opsional: fallback jika route tidak ditemukan
+      onUnknownRoute: (settings) {
+        return MaterialPageRoute(
+          builder: (_) => const Scaffold(
+            body: Center(child: Text("Halaman tidak ditemukan")),
+          ),
+        );
       },
     );
   }

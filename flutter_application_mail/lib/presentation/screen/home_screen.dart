@@ -4,8 +4,8 @@ import '../../shared/widget/botttom_navbar.dart';
 import '../../presentation/screen/profile_screen.dart';
 import '../widgets/featured_section.dart';
 import '../widgets/logo_section.dart';
-import '../components/buttons/whatsapp_button.dart';
-import '../components/buttons/notification.dart';
+// import '../components/buttons/whatsapp_button.dart';
+// import '../components/buttons/notification.dart';
 import '../widgets/notification_panel.dart';
 import '../screen/dashboard.dart'; // halaman tujuan setelah klik notifikasi
 
@@ -30,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final isTablet = screen.width > 600;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -91,18 +91,30 @@ class _HomePageState extends State<_HomePage> {
 
     return Stack(
       children: [
+        // === 🔶 GRADIENT ORANYE FULL SAMPAI ATAS ===
+        Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color.fromARGB(255, 255, 255, 255), // oranye lembut di atas
+                Color.fromARGB(255, 255, 255, 255), // oranye tua di bawah
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+        ),
+
+        // === 🔹 KONTEN UTAMA ===
         SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: isTablet ? 30 : 0,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: isTablet ? 30 : 0),
             child: Column(
               children: [
-                // === BAGIAN ATAS DENGAN BG NAVY ===
+                // === BAGIAN ATAS DENGAN GAMBAR ===
                 Stack(
                   children: [
-                    // === BACKGROUND IMAGE ===
                     Container(
                       width: double.infinity,
                       decoration: const BoxDecoration(
@@ -112,9 +124,10 @@ class _HomePageState extends State<_HomePage> {
                           fit: BoxFit.cover,
                         ),
                       ),
-                      child: SizedBox(height: isTablet ? 360 : 320),
+                      child: SizedBox(height: isTablet ? 360 : 345),
                     ),
 
+                    // === ISI DALAM BACKGROUND ===
                     Padding(
                       padding: EdgeInsets.symmetric(
                         horizontal: isTablet ? 30 : 20,
@@ -142,7 +155,8 @@ class _HomePageState extends State<_HomePage> {
                                 Expanded(
                                   child: TextField(
                                     style: GoogleFonts.poppins(
-                                        color: Colors.white),
+                                      color: Colors.white,
+                                    ),
                                     decoration: InputDecoration(
                                       hintText: "Search",
                                       hintStyle: GoogleFonts.poppins(
@@ -208,18 +222,15 @@ class _HomePageState extends State<_HomePage> {
                               ),
                             ],
                           ),
-
                           const SizedBox(height: 20),
 
-                          // 🔽 Ganti bagian promo card dalam _HomePageState build()
+                          // === PROMO CARD ===
                           Container(
                             width: double.infinity,
-                            padding: EdgeInsets.all(
-                                isTablet ? 18 : 14), // sebelumnya 24 : 20
+                            padding: EdgeInsets.all(isTablet ? 18 : 14),
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius:
-                                  BorderRadius.circular(14), // sebelumnya 20
+                              borderRadius: BorderRadius.circular(14),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withOpacity(0.08),
@@ -242,8 +253,7 @@ class _HomePageState extends State<_HomePage> {
                                       Text(
                                         "PT POS INDONESIA",
                                         style: GoogleFonts.poppins(
-                                          fontSize:
-                                              isTablet ? 16 : 14, // 🔽 kecilkan
+                                          fontSize: isTablet ? 16 : 14,
                                           fontWeight: FontWeight.w700,
                                           color: const Color(0xFF0B1650),
                                         ),
@@ -252,9 +262,7 @@ class _HomePageState extends State<_HomePage> {
                                       Text(
                                         "Serve with heart.",
                                         style: GoogleFonts.poppins(
-                                          fontSize: isTablet
-                                              ? 12
-                                              : 11, // 🔽 kecilkan sedikit
+                                          fontSize: isTablet ? 12 : 11,
                                           color: Colors.black.withOpacity(0.65),
                                           height: 1.4,
                                         ),
@@ -266,21 +274,19 @@ class _HomePageState extends State<_HomePage> {
                                           backgroundColor:
                                               const Color(0xFF0B1650),
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                                10), // 🔽 kecilkan border
+                                            borderRadius:
+                                                BorderRadius.circular(10),
                                           ),
                                           padding: const EdgeInsets.symmetric(
                                             horizontal: 14,
                                             vertical: 8,
-                                          ), // 🔽 kecilkan padding tombol
+                                          ),
                                         ),
                                         child: Text(
                                           "Visit Now",
                                           style: GoogleFonts.poppins(
                                             color: Colors.white,
-                                            fontSize: isTablet
-                                                ? 13
-                                                : 12, // 🔽 kecilkan
+                                            fontSize: isTablet ? 13 : 12,
                                             fontWeight: FontWeight.w600,
                                           ),
                                         ),
@@ -291,9 +297,7 @@ class _HomePageState extends State<_HomePage> {
                                 const SizedBox(width: 8),
                                 Image.asset(
                                   "assets/images/poslogo.png",
-                                  width: isTablet
-                                      ? 90
-                                      : 75, // 🔽 perkecil logo agar seimbang
+                                  width: isTablet ? 90 : 75,
                                   fit: BoxFit.contain,
                                 ),
                               ],
@@ -319,7 +323,7 @@ class _HomePageState extends State<_HomePage> {
           ),
         ),
 
-        // === NOTIFICATION PANEL ===
+        // === PANEL NOTIFIKASI ===
         if (_showNotifications)
           NotificationPanel(
             notifications: _notifications,
@@ -331,6 +335,7 @@ class _HomePageState extends State<_HomePage> {
   }
 }
 
+// === ROUNDED BANNER ===
 class RoundedBanner extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -350,7 +355,6 @@ class RoundedBanner extends StatelessWidget {
 
     return Center(
       child: Container(
-        // 🔽 Lebih kecil & di tengah
         width: screen.width * (isTablet ? 0.8 : 0.9),
         margin: const EdgeInsets.symmetric(vertical: 8),
         padding: EdgeInsets.symmetric(
@@ -359,7 +363,7 @@ class RoundedBanner extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(10), // lebih kecil
+          borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.08),
@@ -405,7 +409,7 @@ class RoundedBanner extends StatelessWidget {
                       Text(
                         title,
                         style: GoogleFonts.poppins(
-                          fontSize: isTablet ? 15 : 14,
+                          fontSize: isTablet ? 15 : 15,
                           fontWeight: FontWeight.w700,
                           color: const Color(0xFF0B1650),
                         ),
@@ -425,12 +429,12 @@ class RoundedBanner extends StatelessWidget {
               ],
             ),
             Positioned(
-              right: 8,
-              top: 6,
+              right: 0,
+              top: 0,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 255, 73, 1),
+                  color: Color.fromARGB(255, 255, 73, 1),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(

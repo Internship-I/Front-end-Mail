@@ -165,7 +165,7 @@ class _CourierDashboardState extends State<CourierDashboard> {
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          "Shipping Dashboard",
+                          "Recipient List",
                           style: GoogleFonts.poppins(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,

@@ -16,6 +16,7 @@ dependencies:
   url_launcher: ^6.3.0
   intl: ^0.18.0
   webview_flutter: ^4.10.0
+  fl_chart: ^0.63.0
 
 dev_dependencies:
   flutter_test:
@@ -54,3 +55,10 @@ flutter:
     - assets/images/backgroundmail5.jpg
     - assets/images/backgroundmail6.jpg
     - assets/images/backgroundmail7.jpg
+    - assets/images/backgroundmail8.jpg
+    - assets/images/backgroundmail11.jpg
+    - assets/images/backgroundmail12.png
+    - assets/images/dashboardicon1.png
+    - assets/images/dashboard_icon.jpg
+    - assets/images/data_icon.png
+

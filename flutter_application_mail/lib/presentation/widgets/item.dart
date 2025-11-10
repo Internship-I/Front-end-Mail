@@ -13,7 +13,7 @@ class ItemWidget extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.white, Colors.grey[100]!],
+          colors: [Colors.white, const Color.fromARGB(255, 255, 255, 255)!],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),

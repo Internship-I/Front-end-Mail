@@ -59,7 +59,7 @@ class _BottomNavbarState extends State<BottomNavbar> {
               BottomNavigationBarItem(
                 icon: Icon(Icons.home_outlined),
                 activeIcon: Icon(Icons.home),
-                label: 'Home',
+                label: '',
               ),
               BottomNavigationBarItem(
                 icon: SizedBox.shrink(),
@@ -68,7 +68,7 @@ class _BottomNavbarState extends State<BottomNavbar> {
               BottomNavigationBarItem(
                 icon: Icon(Icons.settings_outlined),
                 activeIcon: Icon(Icons.settings),
-                label: 'Settings',
+                label: '',
               ),
             ],
           ),
