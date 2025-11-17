@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../routes/router.dart';
 import 'module/Dashboard/controller/transaction_controller.dart';
+import 'module/AdminDashboard/controller/admin_controller.dart'; // ✅ tambahkan ini
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -10,6 +11,8 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => TransactionController()),
+        ChangeNotifierProvider(
+            create: (_) => AdminController()), // ✅ tambahkan ini
       ],
       child: const MyApp(),
     ),

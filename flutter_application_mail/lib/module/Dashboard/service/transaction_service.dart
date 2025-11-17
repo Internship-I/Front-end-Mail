@@ -8,14 +8,14 @@ class TransactionService {
 
   Future<List<TransactionResponse>> fetchTransactions() async {
     try {
-      final response =
-          await _apiClient.getRequest(Endpoints.getAllTransactions);
+      final response = await _apiClient.dio.get(Endpoint.getAllTransaction);
 
       // Debug print respons mentah
-      debugPrint("✅ Response API: $response");
+      final Map<String, dynamic>? res = response.data as Map<String, dynamic>?;
+      debugPrint("✅ Response API: $res");
 
-      if (response["status"] == "success") {
-        final List data = response["data"];
+      if (res != null && res["status"] == "success") {
+        final List data = (res["data"] as List?) ?? [];
 
         // Pastikan data bukan null atau kosong
         if (data.isEmpty) {
@@ -25,7 +25,7 @@ class TransactionService {
 
         return data.map((json) {
           // Debug tiap elemen
-          debugPrint("🟢 Item JSON: $json"  );
+          debugPrint("🟢 Item JSON: $json");
 
           // Pastikan semua key ada agar gak null error
           return TransactionResponse.fromJson({
@@ -47,7 +47,7 @@ class TransactionService {
         }).toList();
       } else {
         throw Exception(
-            "❌ Gagal mengambil data transaksi: ${response["message"]}");
+            "❌ Gagal mengambil data transaksi: ${res?["message"] ?? "Unknown error"}");
       }
     } catch (e) {
       debugPrint("🚨 Error fetchTransactions: $e");

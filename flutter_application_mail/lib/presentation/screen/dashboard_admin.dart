@@ -143,8 +143,7 @@ class _AdminDashboardAppState extends State<AdminDashboardApp>
                 child: Column(
                   children: [
                     if (showAddRecipientPanel) ...[
-                      _panelContainer(
-                          child: AddRecipientPanel(context: context)),
+                      _panelContainer(child: const AdminAddForm()),
                       const SizedBox(height: 12),
                     ],
                     if (showCouriersPanel) ...[

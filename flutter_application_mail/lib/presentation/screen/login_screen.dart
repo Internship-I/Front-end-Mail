@@ -73,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'Login Berhasil! Selamat datang',
+                        'Login Berhasil Selamat datang',
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w500,
