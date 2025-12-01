@@ -1,25 +1,76 @@
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // 1. JANGAN LUPA IMPORT INI
 import '../model/request/login_request.dart';
 import '../model/response/login_response.dart';
 import '../service/auth_service.dart';
 
-class AuthController {
-  final AuthService _authService = AuthService();
+class AuthController with ChangeNotifier {
+  final AuthService _service = AuthService();
 
-  Future<LoginResponse> login(String username, String password) async {
-    final request = LoginRequest(username: username, password: password);
-    final response = await _authService.login(request);
+  bool isLoading = false;
 
-    if (response.success) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('username', username);
+  String? userRole;
+  String? username;
+
+  Future<bool> login(String username, String password) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final request = LoginRequest(username: username, password: password);
+      final LoginResponse resp = await _service.login(request);
+
+      // Pastikan status sukses (case insensitive)
+      final isSuccess = resp.status.toLowerCase() == "success";
+
+      if (isSuccess && resp.user != null) {
+        // Update variabel di controller (Memory)
+        userRole = resp.user!.role;
+        this.username = resp.user!.username;
+
+        // ==========================================================
+        // 🔥 BAGIAN PENTING: SIMPAN KE MEMORI HP (SHARED PREFS)
+        // ==========================================================
+        final prefs = await SharedPreferences.getInstance();
+        
+        // Simpan Username agar bisa dibaca di Dashboard
+        await prefs.setString('username', resp.user!.username);
+        
+        // Simpan Role (Opsional, berguna jika ingin membedakan menu Admin/Kurir)
+        await prefs.setString('role', resp.user!.role);
+        
+        // Simpan Token (Jika ada di response, sebaiknya disimpan juga)
+        // await prefs.setString('token', resp.token); 
+
+        // Tandai bahwa user sudah login (Berguna untuk Splash Screen nanti)
+        await prefs.setBool('is_login', true);
+
+        notifyListeners();
+      }
+
+      return isSuccess;
+    } catch (e) {
+      debugPrint("Error Login: $e");
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
     }
-
-    return response;
   }
 
-  Future<String?> getSavedUsername() async {
+  // ==========================================================
+  // 🔥 TAMBAHAN: FUNGSI LOGOUT
+  // ==========================================================
+  Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('username');
+    
+    // Hapus semua data sesi
+    await prefs.clear();
+    
+    // Reset variabel di memory
+    username = null;
+    userRole = null;
+    
+    notifyListeners();
   }
 }

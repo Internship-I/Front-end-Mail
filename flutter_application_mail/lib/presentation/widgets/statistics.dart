@@ -1,64 +1,210 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class StatisticsWidget extends StatelessWidget {
+class StatisticsWidget extends StatefulWidget {
   const StatisticsWidget({super.key});
+
+  @override
+  State<StatisticsWidget> createState() => _StatisticsWidgetState();
+}
+
+class _StatisticsWidgetState extends State<StatisticsWidget> {
+  int _selectedDateIndex = 0; // State untuk filter tanggal
 
   @override
   Widget build(BuildContext context) {
     const Color navy = Color(0xFF0A1D37);
-    const Color accent = Color(0xFF1E3A8A); // biru gelap profesional
-    final screenWidth = MediaQuery.of(context).size.width;
+    const Color softGrey = Color(0xFFF5F7FA);
+    const Color successGreen = Color(0xFF00C853);
 
     return Container(
-      padding: EdgeInsets.all(screenWidth * 0.045),
+      // Padding bawah 0 agar list mentok ke bawah (padat)
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: navy.withOpacity(0.08),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // === HEADER ===
-          Text(
-            "Delivery Overview",
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.w700,
-              fontSize: screenWidth * 0.045,
-              color: navy,
+          // ============================================
+          // 1. FILTER TANGGAL (Sama dengan ItemWidget)
+          // ============================================
+          SizedBox(
+            height: 60,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              itemCount: 7,
+              separatorBuilder: (context, index) => const SizedBox(width: 12),
+              itemBuilder: (context, index) {
+                final dayName = [
+                  "Sen",
+                  "Sel",
+                  "Rab",
+                  "Kam",
+                  "Jum",
+                  "Sab",
+                  "Min"
+                ];
+                final dateNum = (24 + index).toString();
+                bool isSelected = index == _selectedDateIndex;
+
+                return GestureDetector(
+                  onTap: () => setState(() => _selectedDateIndex = index),
+                  child: Container(
+                    width: 50,
+                    decoration: BoxDecoration(
+                      color: isSelected ? navy : softGrey,
+                      borderRadius: BorderRadius.circular(12),
+                      border: isSelected
+                          ? null
+                          : Border.all(color: Colors.grey.withOpacity(0.2)),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          dayName[index % 7],
+                          style: GoogleFonts.poppins(
+                            fontSize: 10,
+                            color: isSelected ? Colors.white70 : Colors.grey,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          dateNum,
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: isSelected ? Colors.white : navy,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            "Your recent courier performance",
-            style: GoogleFonts.poppins(
-              fontSize: screenWidth * 0.032,
-              color: Colors.black54,
-            ),
-          ),
+
           const SizedBox(height: 20),
 
-          // === LIST DATA ===
+          // ============================================
+          // 2. DASHBOARD SUMMARY (STATISTIK HARIAN)
+          // ============================================
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Daily Performance",
+                      style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: navy)),
+                  Text("Target achievement",
+                      style: GoogleFonts.poppins(
+                          fontSize: 10, color: Colors.grey[500])),
+                ],
+              ),
+              // Percentage Badge
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: successGreen.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.trending_up, size: 14, color: successGreen),
+                    const SizedBox(width: 4),
+                    Text("85%",
+                        style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: successGreen)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 12),
+
+          // Progress Bar
+          Stack(
+            children: [
+              Container(
+                  height: 6,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                      color: softGrey,
+                      borderRadius: BorderRadius.circular(10))),
+              Container(
+                  height: 6,
+                  width: 220,
+                  decoration: BoxDecoration(
+                      color: navy, borderRadius: BorderRadius.circular(10))),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+          Divider(height: 1, color: Colors.grey.withOpacity(0.2)),
+
+          // ============================================
+          // 3. LIST PENGIRIMAN (TIMELINE STYLE)
+          // ============================================
           Expanded(
             child: ListView(
               physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.symmetric(vertical: 10),
               children: [
-                _buildStatCard(context, "14 Oct 2025", "4 Deliveries", navy,
-                    accent, screenWidth),
-                _buildStatCard(context, "13 Oct 2025", "3 Deliveries", navy,
-                    accent, screenWidth),
-                _buildStatCard(context, "12 Oct 2025", "6 Deliveries", navy,
-                    accent, screenWidth),
-                _buildStatCard(context, "11 Oct 2025", "2 Deliveries", navy,
-                    accent, screenWidth),
+                _buildTimelineItem(
+                    time: "08:30 AM",
+                    title: "Drop Point Center",
+                    subtitle: "Scan In - 4 Packages",
+                    status: "Done",
+                    navy: navy,
+                    isLast: false),
+                _buildTimelineItem(
+                    time: "09:15 AM",
+                    title: "PT. Maju Mundur",
+                    subtitle: "Delivered - Resi #8821",
+                    status: "Done",
+                    navy: navy,
+                    isLast: false),
+                _buildTimelineItem(
+                    time: "10:45 AM",
+                    title: "Apartemen Grand",
+                    subtitle: "Delivered - Resi #8822",
+                    status: "Done",
+                    navy: navy,
+                    isLast: false),
+                _buildTimelineItem(
+                    time: "11:20 AM",
+                    title: "Rumah Bpk. Budi",
+                    subtitle: "Failed - House Empty",
+                    status: "Failed",
+                    navy: navy,
+                    isLast: false),
+                _buildTimelineItem(
+                    time: "01:00 PM",
+                    title: "Kantor Danantara",
+                    subtitle: "Pickup - 2 Documents",
+                    status: "Process",
+                    navy: navy,
+                    isLast: true),
               ],
             ),
           ),
@@ -67,209 +213,138 @@ class StatisticsWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildStatCard(BuildContext context, String date, String info,
-      Color navy, Color accent, double screenWidth) {
-    return GestureDetector(
-      onTap: () => _showTransactionDetail(context, date, navy, accent),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 14),
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.withOpacity(0.25)),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            // Left section
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  date,
-                  style: GoogleFonts.poppins(
-                    fontSize: screenWidth * 0.036,
-                    color: navy,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                Text(
-                  info,
-                  style: GoogleFonts.poppins(
-                    fontSize: screenWidth * 0.031,
-                    color: Colors.black54,
-                  ),
-                ),
-              ],
-            ),
-            const Icon(Icons.chevron_right_rounded,
-                color: Colors.black38, size: 22),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // === DETAIL TRANSAKSI ===
-  void _showTransactionDetail(
-      BuildContext context, String date, Color navy, Color accent) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) {
-        return DraggableScrollableSheet(
-          initialChildSize: 0.55,
-          maxChildSize: 0.9,
-          minChildSize: 0.4,
-          expand: false,
-          builder: (_, scrollController) {
-            return Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 45,
-                      height: 4,
-                      margin: const EdgeInsets.only(bottom: 14),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[400],
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Transactions - $date",
-                        style: GoogleFonts.poppins(
-                          color: navy,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      Icon(Icons.receipt_long_rounded, color: accent, size: 24),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    "Shipment details list",
-                    style: GoogleFonts.poppins(
-                      color: Colors.black54,
-                      fontSize: 12,
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  Expanded(
-                    child: ListView(
-                      controller: scrollController,
-                      physics: const BouncingScrollPhysics(),
-                      children: [
-                        _buildTransactionCard(
-                          name: "Nida Sakinah",
-                          item: "Dokumen Cepat",
-                          price: "Rp 35.000",
-                          resi: "POS123456789",
-                          navy: navy,
-                        ),
-                        _buildTransactionCard(
-                          name: "Rizky Aditya",
-                          item: "Paket Elektronik",
-                          price: "Rp 90.000",
-                          resi: "POS987654321",
-                          navy: navy,
-                        ),
-                        _buildTransactionCard(
-                          name: "Sarah Putri",
-                          item: "Fashion & Aksesoris",
-                          price: "Rp 125.000",
-                          resi: "POS555333222",
-                          navy: navy,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildTransactionCard({
-    required String name,
-    required String item,
-    required String price,
-    required String resi,
+  Widget _buildTimelineItem({
+    required String time,
+    required String title,
+    required String subtitle,
+    required String status,
     required Color navy,
+    required bool isLast,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.withOpacity(0.25)),
-      ),
+    Color statusColor;
+    IconData statusIcon;
+
+    if (status == "Done") {
+      statusColor = Colors.green;
+      statusIcon = Icons.check_circle;
+    } else if (status == "Failed") {
+      statusColor = Colors.red;
+      statusIcon = Icons.cancel;
+    } else {
+      statusColor = Colors.orange;
+      statusIcon = Icons.local_shipping;
+    }
+
+    return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(Icons.person_rounded,
-                color: Colors.black45, size: 26),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
+          // 1. TIMELINE SECTION
+          SizedBox(
+            width: 50,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  name,
+                  time,
+                  textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
+                    fontSize: 10,
                     fontWeight: FontWeight.w600,
-                    fontSize: 14,
                     color: navy,
                   ),
                 ),
-                Text(
-                  item,
-                  style: GoogleFonts.poppins(
-                    color: Colors.black54,
-                    fontSize: 12,
-                  ),
-                ),
                 const SizedBox(height: 4),
-                Text(
-                  "Resi: $resi",
-                  style: GoogleFonts.poppins(
-                    color: Colors.grey[600],
-                    fontSize: 11,
-                  ),
+                // Garis Timeline
+                Expanded(
+                  child: isLast
+                      ? const SizedBox()
+                      : Container(
+                          width: 2,
+                          color: Colors.grey.withOpacity(0.2),
+                        ),
                 ),
               ],
             ),
           ),
-          Text(
-            price,
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.w700,
-              color: navy,
-              fontSize: 13,
+
+          // 2. ICON SECTION
+          Column(
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 2),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  border:
+                      Border.all(color: Colors.grey.withOpacity(0.2), width: 1),
+                ),
+                child: Icon(statusIcon, size: 16, color: statusColor),
+              ),
+            ],
+          ),
+
+          const SizedBox(width: 12),
+
+          // 3. CONTENT SECTION
+          Expanded(
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 16), // Jarak antar item
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.withOpacity(0.15)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.03),
+                    blurRadius: 5,
+                    offset: const Offset(0, 3),
+                  )
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: navy,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle,
+                        style: GoogleFonts.poppins(
+                          fontSize: 10,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                  // Status Chip Kecil
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: statusColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      status,
+                      style: GoogleFonts.poppins(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w600,
+                        color: statusColor,
+                      ),
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
         ],

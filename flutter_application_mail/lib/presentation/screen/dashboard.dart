@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../widgets/CourierDashboard/index_courier_dashboard.dart';
+import 'package:intl/intl.dart';
+
+// Sesuaikan import ini
 import '../../module/Dashboard/controller/transaction_controller.dart';
+import '../../presentation/widgets/exclusive_table.dart';
 
 class CourierDashboard extends StatefulWidget {
   const CourierDashboard({super.key});
@@ -15,32 +18,63 @@ class CourierDashboard extends StatefulWidget {
 class _CourierDashboardState extends State<CourierDashboard> {
   final TextEditingController _searchController = TextEditingController();
   String searchQuery = "";
+  DateTime? _selectedDate;
 
+  // --- FUNGSI WHATSAPP (Tetap sama) ---
   Future<void> _openWhatsApp(
     String phone,
     String consignmentNote,
     String receiverName,
     String price,
-    String senderName, // 🔹 Tambah parameter sender
+    String senderName,
   ) async {
-    // Pesan berbeda tergantung COD atau Non-COD
     final isNonCod = price == "Non-COD";
     final message = isNonCod
-        ? "Hai Sahabat Pos 👋, atas nama $receiverName, paket Non-COD Anda sedang dalam pengantaran 🚚📦 oleh kurir $senderName."
-        : "Hai Sahabat Pos 👋, atas nama $receiverName, paket COD Anda dengan resi $consignmentNote senilai $price sedang dalam pengantaran 🚚📦 oleh kurir $senderName.";
+        ? "Hai Sahabat Pos 👋, paket Non-COD a.n $receiverName sedang dikirim oleh kurir $senderName."
+        : "Hai Sahabat Pos 👋, paket COD a.n $receiverName (Resi: $consignmentNote, Rp $price) sedang dikirim oleh kurir $senderName.";
 
     final encoded = Uri.encodeComponent(message);
     final url = Uri.parse("https://wa.me/$phone?text=$encoded");
 
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-      throw Exception("Tidak bisa membuka WhatsApp");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Gagal membuka WhatsApp")),
+        );
+      }
+    }
+  }
+
+  // --- FUNGSI PILIH TANGGAL (Tetap sama) ---
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate ?? DateTime.now(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2030),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF0B1650),
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+      });
     }
   }
 
   @override
   void initState() {
     super.initState();
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<TransactionController>(context, listen: false)
           .loadTransactions();
@@ -62,197 +96,289 @@ class _CourierDashboardState extends State<CourierDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F8FB),
+      backgroundColor: Colors.white,
       body: SafeArea(
-        child: Stack(
+        child: Column(
           children: [
-            // HEADER PUTIH
-            Container(
-              height: 180,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(28),
-                  bottomRight: Radius.circular(28),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 8,
-                    offset: Offset(0, 4),
-                  )
+            // ===============================================
+            // 1. HEADER COMPACT
+            // ===============================================
+            Padding(
+              // 🔥 COMPACT: Padding dikurangi (16 -> 10)
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // KIRI: LOGO
+                  Row(
+                    children: [
+                      Image.asset(
+                        "assets/images/poslogo.png",
+                        height: 28, // 🔥 COMPACT: 32 -> 28
+                        fit: BoxFit.contain,
+                      ),
+                      const SizedBox(width: 10),
+                      Container(
+                          height: 20, width: 1, color: Colors.grey.shade300),
+                      const SizedBox(width: 10),
+                      Image.asset(
+                        "assets/images/danantara.png",
+                        height: 24, // 🔥 COMPACT: 28 -> 24
+                        fit: BoxFit.contain,
+                        errorBuilder: (c, e, s) => const SizedBox(),
+                      ),
+                    ],
+                  ),
+
+                  // KANAN: PROFIL
+                  Row(
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            "Muhammad Qinthar",
+                            style: GoogleFonts.poppins(
+                              fontSize: 13, // 🔥 COMPACT: 14 -> 13
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF0B1650),
+                            ),
+                          ),
+                          Text(
+                            "Kurir",
+                            style: GoogleFonts.poppins(
+                              fontSize: 10, // 🔥 COMPACT: 11 -> 10
+                              color: Colors.grey.shade500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(width: 10),
+                      Container(
+                        width: 38, // 🔥 COMPACT: 45 -> 38
+                        height: 38,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.grey.shade200,
+                          border: Border.all(color: Colors.grey.shade100),
+                          image: const DecorationImage(
+                            image: NetworkImage(
+                                "https://i.pravatar.cc/150?img=11"),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
 
-            Consumer<TransactionController>(
-              builder: (context, controller, child) {
-                if (controller.isLoading) {
-                  return const IntroLoadingPage();
-                }
+            // ===============================================
+            // 2. AREA KONTROL COMPACT
+            // ===============================================
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.symmetric(
+                  horizontal: 16), // Margin luar dikurangi
+              padding: const EdgeInsets.all(
+                  16), // 🔥 COMPACT: Padding dalam 24 -> 16
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(
+                    255, 255, 255, 255), // Background abu sangat muda
+                borderRadius: BorderRadius.circular(20), // Radius 28 -> 20
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Cari Pengiriman",
+                    style: GoogleFonts.poppins(
+                      fontSize: 16, // 🔥 COMPACT: 20 -> 16
+                      fontWeight: FontWeight.w700,
+                      color: const Color.fromARGB(255, 12, 8, 116),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    "Cari data paket dan filter tanggal",
+                    style: GoogleFonts.poppins(
+                      fontSize: 11, // 🔥 COMPACT: 12 -> 11
+                      color: Colors.grey.shade500,
+                    ),
+                  ),
+                  const SizedBox(height: 12), // Jarak dikurangi
 
-                // Filter pencarian
-                final filteredTransactions = controller.transactions.where((t) {
-                  final receiver = t.receiverName.toLowerCase();
-                  final phone = t.receiverPhone.toLowerCase();
-                  final note = t.consignmentNote.toLowerCase();
-                  final address = t.addressReceiver.toLowerCase();
-                  final sender = t.senderName.toLowerCase();
-                  return receiver.contains(searchQuery) ||
-                      phone.contains(searchQuery) ||
-                      note.contains(searchQuery) ||
-                      address.contains(searchQuery) ||
-                      sender.contains(searchQuery);
-                }).toList();
-
-                // === KONVERSI DATA KE FORMAT TABLE ===
-                final recipients = filteredTransactions.map((t) {
-                  final formattedDate = t.createdAt.split('T').first;
-
-                  // Tambahkan titik ribuan dan Non-COD
-                  final codDisplay = (t.codValue == 0)
-                      ? "Non-COD"
-                      : "Rp ${t.codValue.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}";
-
-                  // Tambahkan status lengkap dengan kurir
-                  final deliveryStatus = (t.codValue == 0)
-                      ? "Paket Non-COD akan dikirimkan oleh kurir ${t.senderName}"
-                      : "Paket COD (${codDisplay}) akan dikirimkan oleh kurir ${t.senderName}";
-
-                  return {
-                    "ID": t.id,
-                    "ConsignmentNote": t.consignmentNote,
-                    "SenderName": t.senderName,
-                    "SenderPhone": t.senderPhone,
-                    "ReceiverName": t.receiverName,
-                    "ReceiverPhone": t.receiverPhone,
-                    "AddressReceiver": t.addressReceiver,
-                    "ItemContent": t.itemContent,
-                    "ServiceType": t.serviceType,
-                    "CODValue": codDisplay,
-                    "CreatedAt": formattedDate,
-                    "DeliveryStatus": deliveryStatus,
-                  };
-                }).toList();
-
-                return Column(
-                  children: [
-                    const SizedBox(height: 20),
-
-                    // Logo Header
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 18.0, vertical: 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Image.asset("assets/images/poslogo.png",
-                                  width: 45, height: 45),
-                              const SizedBox(width: 10),
-                              Image.asset("assets/images/danantara.png",
-                                  width: 45, height: 45),
+                  Row(
+                    children: [
+                      // SEARCH BAR
+                      Expanded(
+                        child: Container(
+                          height: 42, // 🔥 COMPACT: Tinggi 52 -> 42
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.03),
+                                blurRadius: 5,
+                                offset: const Offset(0, 2),
+                              ),
                             ],
+                          ),
+                          child: TextField(
+                            controller: _searchController,
+                            style: GoogleFonts.poppins(fontSize: 13),
+                            textAlignVertical:
+                                TextAlignVertical.center, // Biar teks tengah
+                            decoration: InputDecoration(
+                              hintText: "Cari resi / nama...",
+                              hintStyle: GoogleFonts.poppins(
+                                  color: Colors.grey.shade400, fontSize: 12),
+                              prefixIcon: const Icon(Icons.search_rounded,
+                                  color: Color(0xFF0B1650),
+                                  size: 20), // Icon kecil
+                              border: InputBorder.none,
+                              isDense: true, // Agar tidak boros tempat
+                              contentPadding:
+                                  EdgeInsets.zero, // Reset padding default
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+
+                      // TOMBOL FILTER TANGGAL
+                      GestureDetector(
+                        onTap: () => _selectDate(context),
+                        child: Container(
+                          height: 42, // 🔥 COMPACT: 52 -> 42
+                          width: 42,
+                          decoration: BoxDecoration(
+                            color: _selectedDate != null
+                                ? const Color(0xFF0B1650)
+                                : Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.03),
+                                blurRadius: 5,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            Icons.calendar_month_rounded,
+                            color: _selectedDate != null
+                                ? Colors.white
+                                : const Color(0xFF0B1650),
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // CHIP TANGGAL TERPILIH
+                  if (_selectedDate != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF0B1650).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  "Filter: ${DateFormat('dd MMM').format(_selectedDate!)}", // Format tanggal dipendekkan
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: const Color(0xFF0B1650),
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                GestureDetector(
+                                  onTap: () =>
+                                      setState(() => _selectedDate = null),
+                                  child: const Icon(Icons.close_rounded,
+                                      size: 14, color: Color(0xFF0B1650)),
+                                )
+                              ],
+                            ),
                           ),
                         ],
                       ),
                     ),
+                ],
+              ),
+            ),
 
-                    // Judul
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "Recipient List",
-                          style: GoogleFonts.poppins(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
+            const SizedBox(height: 8), // Jarak ke list dikurangi
+
+            // ===============================================
+            // 3. LIST PENGIRIMAN
+            // ===============================================
+            Expanded(
+              child: Consumer<TransactionController>(
+                builder: (context, controller, child) {
+                  if (controller.isLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  // LOGIKA FILTER
+                  final filteredList = controller.transactions.where((t) {
+                    final q = searchQuery;
+                    final matchesSearch =
+                        t.receiverName.toLowerCase().contains(q) ||
+                            t.consignmentNote.toLowerCase().contains(q) ||
+                            t.addressReceiver.toLowerCase().contains(q);
+
+                    bool matchesDate = true;
+                    if (_selectedDate != null) {
+                      try {
+                        final tDate = DateTime.parse(t.createdAt);
+                        matchesDate = tDate.year == _selectedDate!.year &&
+                            tDate.month == _selectedDate!.month &&
+                            tDate.day == _selectedDate!.day;
+                      } catch (e) {
+                        matchesDate = false;
+                      }
+                    }
+                    return matchesSearch && matchesDate;
+                  }).toList();
+
+                  if (filteredList.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.folder_open_rounded,
+                              size: 50, color: Colors.grey.shade300),
+                          const SizedBox(height: 8),
+                          Text(
+                            "Tidak ada data",
+                            style: GoogleFonts.poppins(
+                                fontSize: 12, color: Colors.grey.shade500),
                           ),
-                        ),
+                        ],
                       ),
-                    ),
+                    );
+                  }
 
-                    const SizedBox(height: 12),
-
-                    // Search bar
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(14),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: TextField(
-                          controller: _searchController,
-                          style: GoogleFonts.poppins(fontSize: 14),
-                          decoration: InputDecoration(
-                            prefixIcon:
-                                const Icon(Icons.search, color: Colors.grey),
-                            hintText:
-                                "Cari penerima, pengirim, resi, nomor HP, atau alamat...",
-                            hintStyle: GoogleFonts.poppins(
-                              color: Colors.black.withOpacity(0.5),
-                              fontSize: 13.5,
-                            ),
-                            border: InputBorder.none,
-                            contentPadding:
-                                const EdgeInsets.symmetric(vertical: 14),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // TABEL
-                    Expanded(
-                      child: recipients.isEmpty
-                          ? Center(
-                              child: Text(
-                                "Tidak ada hasil ditemukan",
-                                style: GoogleFonts.poppins(color: Colors.grey),
-                              ),
-                            )
-                          : Container(
-                              margin: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(24),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 5),
-                                  ),
-                                ],
-                              ),
-                              child: ExclusiveTable(
-                                recipients: recipients,
-                                onWhatsAppPressed:
-                                    (phone, note, receiver, cod) {
-                                  final sender = recipients.firstWhere((r) =>
-                                      r["ReceiverPhone"] ==
-                                      phone)["SenderName"];
-                                  _openWhatsApp(phone, note, receiver, cod,
-                                      sender ?? "-");
-                                },
-                              ),
-                            ),
-                    ),
-                  ],
-                );
-              },
+                  return ShipmentListView(
+                    transactions: filteredList,
+                    onWhatsAppAction: _openWhatsApp,
+                  );
+                },
+              ),
             ),
           ],
         ),

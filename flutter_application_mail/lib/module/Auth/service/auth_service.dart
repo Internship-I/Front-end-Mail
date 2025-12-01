@@ -1,28 +1,22 @@
+import '../../../config/network/api_client_login.dart';
+import '../../../config/network/endpoint.dart';
 import '../model/request/login_request.dart';
 import '../model/response/login_response.dart';
 
 class AuthService {
+  // gunakan singleton saja
+  final ApiClient _client = ApiClient.instance;
+
   Future<LoginResponse> login(LoginRequest request) async {
-    // Simulasi delay
-    await Future.delayed(const Duration(seconds: 1));
-
-    // Dummy data
-    const dummyUsernames = ["admin", "kurir"];
-    const dummyPassword = "12345";
-
-    if (dummyUsernames.contains(request.username) &&
-        request.password == dummyPassword) {
-      return LoginResponse(
-        success: true,
-        message: "Login berhasil",
-        token: "dummy_token_123456",
-        username: request.username,
+    try {
+      final response = await _client.public.post(
+        Endpoint.login,
+        data: request.toJson(),
       );
-    } else {
-      return LoginResponse(
-        success: false,
-        message: "Username atau password salah",
-      );
+
+      return LoginResponse.fromJson(response.data);
+    } catch (e) {
+      throw Exception("Login gagal: $e");
     }
   }
 }

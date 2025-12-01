@@ -79,8 +79,8 @@ class _BottomNavbarState extends State<BottomNavbar> {
             child: GestureDetector(
               onTap: () => widget.onTap(1),
               child: Container(
-                height: 65,
-                width: 65,
+                height: 50,
+                width: 50,
                 decoration: BoxDecoration(
                   color: widget.currentIndex == 1
                       ? const Color(0xFF0B1650)

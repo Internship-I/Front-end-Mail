@@ -1,312 +1,345 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class ExclusiveTable extends StatefulWidget {
-  final List<Map<String, String>> recipients;
-  final Function(String, String, String, String) onWhatsAppPressed;
+// Widget ini menerima data list dan fungsi callback WA
+class ShipmentListView extends StatelessWidget {
+  final List<dynamic> transactions;
+  final Function(
+          String phone, String note, String name, String price, String sender)
+      onWhatsAppAction;
 
-  const ExclusiveTable({
+  const ShipmentListView({
     super.key,
-    required this.recipients,
-    required this.onWhatsAppPressed,
+    required this.transactions,
+    required this.onWhatsAppAction,
   });
 
   @override
-  State<ExclusiveTable> createState() => _ExclusiveTableState();
+  Widget build(BuildContext context) {
+    // Langsung tampilkan list tanpa grouping tanggal (sesuai request)
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(
+          20, 20, 20, 20), // Padding atas ditambah dikit
+      physics: const BouncingScrollPhysics(),
+      itemCount: transactions.length,
+      itemBuilder: (context, index) {
+        final data = transactions[index];
+        return _ShipmentCard(
+          data: data,
+          onWhatsApp: onWhatsAppAction,
+        );
+      },
+    );
+  }
 }
 
-class _ExclusiveTableState extends State<ExclusiveTable> {
-  String? selectedDate;
+// ==========================================
+// WIDGET KARTU PENGIRIMAN (CARD)
+// ==========================================
+class _ShipmentCard extends StatelessWidget {
+  final dynamic data;
+  final Function(String, String, String, String, String) onWhatsApp;
+
+  const _ShipmentCard({required this.data, required this.onWhatsApp});
 
   @override
   Widget build(BuildContext context) {
-    const mainColor = Color(0xFF0B1650);
-    const accentColor = Color(0xFF3A4EB7);
-    const bgColor = Color(0xFFF5F6FA);
+    final bool isCOD = data.codValue > 0;
+    final String priceDisplay = isCOD
+        ? "Rp ${data.codValue.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (m) => '${m[1]}.')}"
+        : "Lunas";
 
-    // 🔹 Kelompokkan data berdasarkan tanggal
-    final Map<String, List<Map<String, String>>> groupedByDate = {};
-    for (var item in widget.recipients) {
-      final date = item["CreatedAt"] ?? "Unknown";
-      groupedByDate.putIfAbsent(date, () => []).add(item);
-    }
-
-    final sortedDates = groupedByDate.keys.toList()
-      ..sort((a, b) => b.compareTo(a));
-
-    final displayedDates = selectedDate == null
-        ? sortedDates
-        : sortedDates.where((d) => d == selectedDate).toList();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // 🔸 Header dan filter tanggal
-        Container(
-          color: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Daftar Pengiriman",
-                style: GoogleFonts.poppins(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: mainColor,
-                ),
-              ),
-              const Icon(Icons.delivery_dining_rounded, color: accentColor),
-            ],
-          ),
-        ),
-
-        // 🔸 Scroll tanggal
-        Container(
-          color: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: Row(
-              children: [
-                for (var date in sortedDates)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: ChoiceChip(
-                      label: Text(
-                        date,
-                        style: GoogleFonts.poppins(
-                          color: selectedDate == date
-                              ? Colors.white
-                              : mainColor.withOpacity(0.8),
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                        ),
-                      ),
-                      selected: selectedDate == date,
-                      selectedColor: accentColor,
-                      backgroundColor: Colors.grey.shade200,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      onSelected: (bool selected) {
-                        setState(() {
-                          selectedDate = selected ? date : null;
-                        });
-                      },
-                    ),
-                  ),
-                if (selectedDate != null)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8),
-                    child: TextButton.icon(
-                      onPressed: () {
-                        setState(() {
-                          selectedDate = null;
-                        });
-                      },
-                      icon: const Icon(Icons.close_rounded,
-                          color: Colors.redAccent, size: 18),
-                      label: Text(
-                        "Semua",
-                        style: GoogleFonts.poppins(
-                          color: Colors.redAccent,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ),
-
-        // 🔹 Daftar data transaksi
-        Expanded(
-          child: Container(
-            color: bgColor,
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-              itemCount: displayedDates.length,
-              itemBuilder: (context, index) {
-                final date = displayedDates[index];
-                final items = groupedByDate[date]!;
-
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 6, horizontal: 8),
-                      child: Text(
-                        "Tanggal: $date",
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                          color: mainColor,
-                        ),
-                      ),
-                    ),
-                    for (var data in items)
-                      _buildDeliveryCard(data, mainColor, accentColor),
-                  ],
-                );
-              },
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDeliveryCard(
-      Map<String, String> data, Color mainColor, Color accentColor) {
-    final codValue = data["CODValue"] ?? "0";
-    final isCOD = codValue != "0";
+    // Format Tanggal Cantik (Ambil YYYY-MM-DD saja)
+    final String dateString = data.createdAt.toString().split('T').first;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: Colors.black12.withOpacity(0.05),
-            blurRadius: 6,
-            offset: const Offset(0, 3),
+            color: Colors.grey.withOpacity(0.08),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 🔸 Header nama penerima
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  data["ReceiverName"] ?? "-",
-                  style: GoogleFonts.poppins(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w700,
-                    color: mainColor,
+          // 1. HEADER KARTU (RESI & STATUS)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: isCOD ? const Color(0xFFFFF8E1) : const Color(0xFFE8F5E9),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.confirmation_number_outlined,
+                        size: 16, color: Colors.black54),
+                    const SizedBox(width: 6),
+                    Text(
+                      data.consignmentNote,
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
+                ),
+                // BADGE STATUS
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: isCOD ? Colors.orange : Colors.green,
+                    borderRadius: BorderRadius.circular(4),
                   ),
-                ),
-              ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 4, horizontal: 10),
-                decoration: BoxDecoration(
-                  color: isCOD ? Colors.green.shade50 : Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  isCOD ? "COD" : "Non COD",
-                  style: GoogleFonts.poppins(
-                    color: isCOD ? Colors.green.shade700 : Colors.grey.shade600,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-
-          // 🔸 Detail pengiriman
-          _buildDetailRow(Icons.location_on_rounded, "Alamat",
-              data["AddressReceiver"] ?? "-", accentColor),
-          _buildDetailRow(Icons.inventory_2_rounded, "Isi Barang",
-              data["ItemContent"] ?? "-", accentColor),
-          _buildDetailRow(Icons.delivery_dining_rounded, "Layanan",
-              data["ServiceType"] ?? "-", accentColor),
-          _buildDetailRow(Icons.person_outline_rounded, "Pengirim",
-              "${data["SenderName"]} (${data["SenderPhone"]})", accentColor),
-
-          const SizedBox(height: 10),
-          Divider(color: Colors.grey.shade300),
-
-          // 🔸 Bagian bawah (total & tombol WhatsApp)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                isCOD
-                    ? "Total COD: Rp ${codValue}"
-                    : "Tidak ada pembayaran (Non COD)",
-                style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.w600,
-                  color: mainColor,
-                  fontSize: 13.5,
-                ),
-              ),
-              InkWell(
-                onTap: () {
-                  widget.onWhatsAppPressed(
-                    data["ReceiverPhone"] ?? "",
-                    data["ConsignmentNote"] ?? "",
-                    data["ReceiverName"] ?? "",
-                    codValue,
-                  );
-                },
-                borderRadius: BorderRadius.circular(50),
-                child: Container(
-                  width: 46,
-                  height: 46,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [
-                        Color(0xFF25D366),
-                        Color(0xFF128C7E),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+                  child: Text(
+                    isCOD ? "COD" : "NON-COD",
+                    style: GoogleFonts.poppins(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
-                  child: const Icon(Icons.chat_rounded,
-                      color: Colors.white, size: 24),
                 ),
-              ),
-            ],
+              ],
+            ),
+          ),
+
+          // 2. BODY KARTU (INFO PENERIMA)
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Icon Timeline
+                Column(
+                  children: [
+                    const Icon(Icons.person_pin_circle,
+                        color: Color(0xFF0B1650), size: 22),
+                    Container(
+                      width: 2,
+                      height: 40, // Diperpanjang sedikit karena ada tanggal
+                      color: Colors.grey.shade200,
+                    ),
+                    const Icon(Icons.home_work_outlined,
+                        color: Colors.grey, size: 18),
+                  ],
+                ),
+                const SizedBox(width: 12),
+
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Nama Penerima
+                      Text(
+                        data.receiverName,
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF0B1650),
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      // No HP
+                      Text(
+                        data.receiverPhone,
+                        style: GoogleFonts.poppins(
+                            fontSize: 12, color: Colors.grey),
+                      ),
+                      const SizedBox(height: 8),
+                      // Alamat
+                      Text(
+                        data.addressReceiver,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          color: Colors.black87,
+                          height: 1.4,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      // 🔥 TANGGAL (DITAMBAHKAN DI SINI)
+                      Row(
+                        children: [
+                          const Icon(Icons.calendar_today,
+                              size: 12, color: Colors.grey),
+                          const SizedBox(width: 4),
+                          Text(
+                            dateString,
+                            style: GoogleFonts.poppins(
+                              fontSize: 11,
+                              color: Colors.grey.shade600,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // 3. FOOTER (SLIDE BUTTON)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Divider(height: 1, color: Colors.grey.shade100),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Tagihan",
+                            style: GoogleFonts.poppins(
+                                fontSize: 10, color: Colors.grey)),
+                        Text(
+                          priceDisplay,
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color:
+                                isCOD ? const Color(0xFFFF4901) : Colors.green,
+                          ),
+                        ),
+                      ],
+                    ),
+                    // TOMBOL GESER (ANDROID SLIDE STYLE)
+                    _AndroidSlideButton(
+                      onComplete: () {
+                        onWhatsApp(
+                          data.receiverPhone,
+                          data.consignmentNote,
+                          data.receiverName,
+                          isCOD ? priceDisplay : "Non-COD",
+                          data.senderName,
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildDetailRow(
-      IconData icon, String label, String value, Color accentColor) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+// ==========================================
+// WIDGET TOMBOL GESER (SLIDE TO ACT)
+// ==========================================
+class _AndroidSlideButton extends StatefulWidget {
+  final VoidCallback onComplete;
+  const _AndroidSlideButton({required this.onComplete});
+
+  @override
+  State<_AndroidSlideButton> createState() => _AndroidSlideButtonState();
+}
+
+class _AndroidSlideButtonState extends State<_AndroidSlideButton> {
+  double _dragValue = 0.0;
+  final double _maxWidth = 140.0; // Lebar area geser
+  final double _handleSize = 40.0; // Ukuran bulatan
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: _maxWidth,
+      height: _handleSize,
+      decoration: BoxDecoration(
+        color: Colors.grey.shade100,
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Stack(
         children: [
-          Icon(icon, size: 18, color: accentColor.withOpacity(0.85)),
-          const SizedBox(width: 8),
-          Expanded(
-            child: RichText(
-              text: TextSpan(
-                text: "$label: ",
+          // Teks Background
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 20.0),
+              child: Text(
+                "Geser WA >>",
                 style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black87,
-                  fontSize: 13.5,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey.shade500,
                 ),
-                children: [
-                  TextSpan(
-                    text: value,
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w400,
-                      color: Colors.black54,
-                      fontSize: 13.5,
-                    ),
-                  ),
-                ],
+              ),
+            ),
+          ),
+          // Progress Hijau
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 50),
+            width: _dragValue + _handleSize,
+            height: _handleSize,
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(255, 33, 216, 54).withOpacity(0.2),
+              borderRadius: BorderRadius.circular(30),
+            ),
+          ),
+          // Handle Geser
+          Positioned(
+            left: _dragValue,
+            child: GestureDetector(
+              onHorizontalDragUpdate: (details) {
+                setState(() {
+                  _dragValue += details.delta.dx;
+                  _dragValue = _dragValue.clamp(0.0, _maxWidth - _handleSize);
+                });
+              },
+              onHorizontalDragEnd: (details) {
+                if (_dragValue > (_maxWidth - _handleSize) * 0.8) {
+                  // Jika geser > 80%, trigger action
+                  widget.onComplete();
+                  setState(() => _dragValue = _maxWidth - _handleSize);
+                  // Reset setelah 1 detik
+                  Future.delayed(const Duration(seconds: 1), () {
+                    if (mounted) setState(() => _dragValue = 0.0);
+                  });
+                } else {
+                  // Balik ke awal
+                  setState(() => _dragValue = 0.0);
+                }
+              },
+              child: Container(
+                width: _handleSize,
+                height: _handleSize,
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 255, 255, 255), // Warna WA
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.green.withOpacity(0.4),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    )
+                  ],
+                ),
+                child: Image.asset(
+                  "assets/images/walogo.png",
+                  width: 20,
+                  height: 20,
+                  fit: BoxFit.contain,
+                ),
               ),
             ),
           ),

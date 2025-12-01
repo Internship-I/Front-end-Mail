@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../module/AdminDashboard/service/admin_service.dart';
+import '../../module/AdminDashboard/model/response/admin_model_response.dart';
 
 class AdminGraph extends StatefulWidget {
   const AdminGraph({super.key});
@@ -10,173 +12,123 @@ class AdminGraph extends StatefulWidget {
 
 class _AdminGraphState extends State<AdminGraph>
     with SingleTickerProviderStateMixin {
-  final List<double> chartData = [30, 45, 25, 60, 40];
+  List<double> chartData = [0, 0, 0, 0, 0];
+  bool loading = true;
+
   late AnimationController _controller;
-  late List<Animation<double>> _animations;
-  int? hoveredIndex;
+  List<Animation<double>> _animations = [];
 
   @override
   void initState() {
     super.initState();
-
     _controller =
         AnimationController(vsync: this, duration: const Duration(seconds: 1));
 
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    try {
+      final List<Transaction> data =
+          await AdminService().getAllTransaction(); // ← sama seperti summary
+
+      // Ambil hari Sen–Jum minggu ini
+      final now = DateTime.now();
+      final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+
+      List<double> weekly = [0, 0, 0, 0, 0];
+
+      for (var trx in data) {
+        if (trx.createdAt == null) continue;
+
+        final tgl = DateTime.parse(trx.createdAt!);
+
+        for (int i = 0; i < 5; i++) {
+          final currentDay = startOfWeek.add(Duration(days: i));
+
+          if (tgl.year == currentDay.year &&
+              tgl.month == currentDay.month &&
+              tgl.day == currentDay.day) {
+            weekly[i] += 1;
+          }
+        }
+      }
+
+      setState(() {
+        chartData = weekly;
+        loading = false;
+      });
+
+      _buildAnimations();
+      _controller.forward();
+    } catch (e) {
+      print("Error chart: $e");
+    }
+  }
+
+  void _buildAnimations() {
     final maxVal = chartData.reduce((a, b) => a > b ? a : b);
 
     _animations = chartData.map((val) {
-      final heightPercent = (val / (maxVal == 0 ? 1 : maxVal)).toDouble();
-      return Tween<double>(begin: 0, end: heightPercent).animate(
+      final percent = (maxVal == 0 ? 0.0 : val / maxVal);
+      return Tween<double>(begin: 0, end: percent).animate(
         CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
       );
     }).toList();
-
-    _controller.forward();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final List<String> days = ["Sen", "Sel", "Rab", "Kam", "Jum"];
+
+    if (loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     final maxVal = chartData.reduce((a, b) => a > b ? a : b);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Tren Penerima (minggu ini)",
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 15),
+          "Tren Penerima Mingguan",
+          style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 12),
-
-        // 🔹 Dibungkus Stack besar agar tooltip tidak terpotong
         SizedBox(
-          height: 220, // lebih tinggi supaya tooltip muat
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: AnimatedBuilder(
-                  animation: _controller,
-                  builder: (context, child) {
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: List.generate(chartData.length, (i) {
-                        final val = chartData[i];
-                        final heightPercent = _animations[i].value;
-                        final barHeight = 120 * heightPercent;
+          height: 220,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: List.generate(chartData.length, (i) {
+              final barValue = chartData[i];
+              final barPercent = ((maxVal == 0) ? 0.0 : barValue / maxVal)
+                  .clamp(0.0, 1.0) as double;
+              final barHeight = 120.0 * barPercent;
 
-                        return Expanded(
-                          child: MouseRegion(
-                            onEnter: (_) => setState(() => hoveredIndex = i),
-                            onExit: (_) => setState(() => hoveredIndex = null),
-                            child: Stack(
-                              alignment: Alignment.bottomCenter,
-                              clipBehavior: Clip.none,
-                              children: [
-                                // 🔹 Batang grafik
-                                AnimatedContainer(
-                                  duration: const Duration(milliseconds: 300),
-                                  margin:
-                                      const EdgeInsets.symmetric(horizontal: 6),
-                                  height: barHeight,
-                                  decoration: BoxDecoration(
-                                    color: hoveredIndex == i
-                                        ? const Color(0xFF144272)
-                                        : const Color(0xFF205295),
-                                    borderRadius: BorderRadius.circular(8),
-                                    boxShadow: hoveredIndex == i
-                                        ? [
-                                            BoxShadow(
-                                              color: Colors.black
-                                                  .withOpacity(0.25),
-                                              blurRadius: 6,
-                                              offset: const Offset(0, 3),
-                                            )
-                                          ]
-                                        : [],
-                                  ),
-                                ),
-
-                                // 🔹 Tooltip di atas batang
-                                if (hoveredIndex == i)
-                                  Positioned(
-                                    bottom: barHeight + 20,
-                                    child: AnimatedOpacity(
-                                      duration:
-                                          const Duration(milliseconds: 200),
-                                      opacity: hoveredIndex == i ? 1 : 0,
-                                      child: Transform.scale(
-                                        scale: 1.05,
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 10, vertical: 6),
-                                          decoration: BoxDecoration(
-                                            color: Colors.black87,
-                                            borderRadius:
-                                                BorderRadius.circular(6),
-                                          ),
-                                          child: Column(
-                                            children: [
-                                              Text(
-                                                "Transaksi: ${val.toInt()}",
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 11,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                              Text(
-                                                "Berhasil: ${(val * 0.9).toInt()}",
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 10,
-                                                  color: Colors.greenAccent,
-                                                ),
-                                              ),
-                                              Text(
-                                                "Gagal: ${(val * 0.1).toInt()}",
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 10,
-                                                  color: Colors.redAccent,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-
-                                // 🔹 Label hari
-                                Positioned(
-                                  bottom: -20,
-                                  child: Text(
-                                    ["Sen", "Sel", "Rab", "Kam", "Jum"][i],
-                                    style: GoogleFonts.poppins(fontSize: 12),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }),
-                    );
-                  },
+              return Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 500),
+                      height: barHeight,
+                      margin: const EdgeInsets.symmetric(horizontal: 6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF144272),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      days[i],
+                      style: GoogleFonts.poppins(fontSize: 12),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+              );
+            }),
           ),
-        ),
-
-        const SizedBox(height: 24),
-        Text(
-          "Arahkan kursor ke batang grafik untuk melihat detail.",
-          style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
         ),
       ],
     );

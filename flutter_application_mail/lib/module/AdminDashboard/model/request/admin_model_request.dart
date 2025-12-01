@@ -19,7 +19,7 @@ class AdminModelRequest {
     required this.codValue,
   });
 
-  /// 🔹 Konversi ke JSON untuk dikirim ke API
+  /// 🔹 Convert ke JSON untuk dikirim ke API
   Map<String, dynamic> toJson() {
     return {
       "sender_name": senderName.trim(),
@@ -33,17 +33,34 @@ class AdminModelRequest {
     };
   }
 
-  /// 🔹 Factory dari JSON (kalau nanti kamu mau parse balik dari API)
+  /// 🔹 Factory dari JSON (jaga-jaga kalau API return data)
   factory AdminModelRequest.fromJson(Map<String, dynamic> json) {
     return AdminModelRequest(
-      senderName: json["sender_name"] ?? "",
-      senderPhone: json["sender_phone"] ?? "",
-      receiverName: json["receiver_name"] ?? "",
-      addressReceiver: json["address_receiver"] ?? "",
-      receiverPhone: json["receiver_phone"] ?? "",
-      itemContent: json["item_content"] ?? "",
-      serviceType: json["service_type"] ?? "",
-      codValue: json["cod_value"] ?? 0,
+      senderName: (json["sender_name"] ?? "").toString(),
+      senderPhone: (json["sender_phone"] ?? "").toString(),
+      receiverName: (json["receiver_name"] ?? "").toString(),
+      addressReceiver: (json["address_receiver"] ?? "").toString(),
+      receiverPhone: (json["receiver_phone"] ?? "").toString(),
+      itemContent: (json["item_content"] ?? "").toString(),
+      serviceType: (json["service_type"] ?? "").toString(),
+      codValue: int.tryParse(json["cod_value"]?.toString() ?? "0") ?? 0,
     );
+  }
+
+  /// 🔹 Biar mudah debugging
+  @override
+  String toString() {
+    return """
+AdminModelRequest(
+  senderName: $senderName,
+  senderPhone: $senderPhone,
+  receiverName: $receiverName,
+  addressReceiver: $addressReceiver,
+  receiverPhone: $receiverPhone,
+  itemContent: $itemContent,
+  serviceType: $serviceType,
+  codValue: $codValue
+)
+""";
   }
 }

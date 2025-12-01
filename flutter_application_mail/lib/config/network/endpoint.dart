@@ -1,14 +1,20 @@
-class Endpoints {
-  static const String baseUrl =
-      "https://wsmailbe-7daa66974ddc.herokuapp.com/api/user";
-  static const String getAllTransactions = "$baseUrl/getalltransactions";
-}
-
 class Endpoint {
-  static const String baseUrl =
+  // 🔹 BASE URL PUBLIC (untuk login, register, dll)
+  static const String baseUrlPublic =
+      "https://wsmailbe-7daa66974ddc.herokuapp.com/api/public";
+
+  // 🔹 LOGIN
+  static const String login = "$baseUrlPublic/login";
+
+  // 🔹 BASE URL USER (semua endpoint setelah user)
+  static const String baseUrlUser =
       "https://wsmailbe-7daa66974ddc.herokuapp.com/api/user";
 
-  static const String insertTransaction = "$baseUrl/inserttrans";
-  static const String getAllTransaction = "$baseUrl/getalltransactions";
-  static const String getAllSender = "$baseUrl/getallsender";
+  // 🔹 USER & KURIR
+  static const String getAllUsers = "$baseUrlUser/getallusers";
+
+  // 🔹 TRANSAKSI
+  static const String insertTransaction = "$baseUrlUser/inserttrans";
+  static const String getAllTransaction = "$baseUrlUser/getalltransactions";
+  static const String getAllSender = "$baseUrlUser/getallsender";
 }

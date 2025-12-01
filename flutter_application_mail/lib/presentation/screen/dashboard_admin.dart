@@ -15,8 +15,6 @@ class _AdminDashboardAppState extends State<AdminDashboardApp>
   bool showChartPanel = false;
   bool showAddRecipientPanel = false;
 
-  final List<double> _chartData = [3, 4.2, 3.5, 5.1, 4.4];
-
   @override
   Widget build(BuildContext context) {
     const Color navy = Color(0xFF0A2647);
@@ -26,23 +24,40 @@ class _AdminDashboardAppState extends State<AdminDashboardApp>
       backgroundColor: background,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+          // 🔥 COMPACT: Padding luar dikurangi (20/18 -> 16/12)
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ---------- HEADER ----------
+              // ===============================================
+              // 1. HEADER COMPACT
+              // ===============================================
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  // LOGO KIRI
+
                   Row(
                     children: [
-                      Image.asset("assets/images/poslogo.png",
-                          width: 48, height: 48),
+                      Image.asset(
+                        "assets/images/poslogo.png",
+                        height: 28, // 🔥 COMPACT: 32 -> 28
+                        fit: BoxFit.contain,
+                      ),
                       const SizedBox(width: 10),
-                      Image.asset("assets/images/danantara.png",
-                          width: 48, height: 48),
+                      Container(
+                          height: 20, width: 1, color: Colors.grey.shade300),
+                      const SizedBox(width: 10),
+                      Image.asset(
+                        "assets/images/danantara.png",
+                        height: 24, // 🔥 COMPACT: 28 -> 24
+                        fit: BoxFit.contain,
+                        errorBuilder: (c, e, s) => const SizedBox(),
+                      ),
                     ],
                   ),
+
+                  // PROFIL KANAN
                   Row(
                     children: [
                       Column(
@@ -50,55 +65,67 @@ class _AdminDashboardAppState extends State<AdminDashboardApp>
                         children: [
                           Text("Muhammad Qinthar",
                               style: GoogleFonts.poppins(
-                                  fontSize: 15,
-                                  color: Colors.grey[800],
+                                  fontSize: 13, // 🔥 COMPACT: 15 -> 13
+                                  color: const Color(0xFF0B1650),
                                   fontWeight: FontWeight.w600)),
                           Text("Admin",
                               style: GoogleFonts.poppins(
-                                  fontSize: 12, color: Colors.grey)),
+                                  fontSize: 10, // 🔥 COMPACT: 12 -> 10
+                                  color: Colors.grey)),
                         ],
                       ),
-                      const SizedBox(width: 12),
-                      const CircleAvatar(
-                        radius: 22,
-                        backgroundImage: AssetImage("assets/images/qin.jpg"),
+                      const SizedBox(width: 10),
+                      Container(
+                        width: 38, // 🔥 COMPACT: Radius 22 (dia 44) -> 38
+                        height: 38,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.grey.shade200),
+                          image: const DecorationImage(
+                            image: AssetImage("assets/images/qin.jpg"),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ),
                     ],
                   ),
                 ],
               ),
 
-              const SizedBox(height: 18),
+              const SizedBox(height: 12), // Jarak dikurangi (18 -> 12)
 
-              // ---------- CARD ATAS ----------
+              // ===============================================
+              // 2. CARD ATAS (MENU) COMPACT
+              // ===============================================
               SizedBox(
-                height: 120,
+                height: 85, // 🔥 COMPACT: Tinggi List 120 -> 85
                 child: ListView(
                   scrollDirection: Axis.horizontal,
+                  clipBehavior: Clip.none,
                   children: [
                     _buildTopCard(
                       title: "Tambah Penerima",
-                      subtitle: "Tambah data",
+                      subtitle: "Input Data",
                       icon: Icons.person_add_alt_1_rounded,
                       color: navy,
                       active: showAddRecipientPanel,
                       onTap: () => setState(
                           () => showAddRecipientPanel = !showAddRecipientPanel),
                     ),
-                    const SizedBox(width: 14),
+                    const SizedBox(width: 10), // Jarak antar kartu dikurangi
                     _buildTopCard(
                       title: "Daftar Kurir",
-                      subtitle: "Lihat detail kurir",
+                      subtitle: "Detail Kurir",
                       icon: Icons.delivery_dining_rounded,
                       color: navy,
                       active: showCouriersPanel,
                       onTap: () => setState(
                           () => showCouriersPanel = !showCouriersPanel),
                     ),
-                    const SizedBox(width: 14),
+                    const SizedBox(width: 10),
                     _buildTopCard(
                       title: "Grafik",
-                      subtitle: "Tren penerima per hari",
+                      subtitle: "Analitik Data",
                       icon: Icons.bar_chart_rounded,
                       color: navy,
                       active: showChartPanel,
@@ -109,34 +136,17 @@ class _AdminDashboardAppState extends State<AdminDashboardApp>
                 ),
               ),
 
-              const SizedBox(height: 18),
+              const SizedBox(height: 12),
 
-              // ---------- SUMMARY ----------
-              Row(
-                children: [
-                  Expanded(
-                    child: _summaryCard(
-                      title: "Total Penerima",
-                      value: "1.240",
-                      icon: Icons.people_rounded,
-                      color: navy,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _summaryCard(
-                      title: "Penerima Hari Ini",
-                      value: "86",
-                      icon: Icons.today_rounded,
-                      color: navy,
-                    ),
-                  ),
-                ],
-              ),
+              // ===============================================
+              // 3. SUMMARY SECTION
+              // ===============================================
+              const AdminSummary(), // Nanti file ini juga harus dikecilkan
+              const SizedBox(height: 12),
 
-              const SizedBox(height: 18),
-
-              // ---------- PANEL ANIMATED ----------
+              // ===============================================
+              // 4. PANEL ANIMATED (ISI KONTEN)
+              // ===============================================
               AnimatedSize(
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
@@ -147,11 +157,13 @@ class _AdminDashboardAppState extends State<AdminDashboardApp>
                       const SizedBox(height: 12),
                     ],
                     if (showCouriersPanel) ...[
-                      _panelContainer(child: const CouriersPanel()),
+                      _panelContainer(
+                          child: const CouriersPanel(
+                        couriers: [],
+                      )),
                       const SizedBox(height: 12),
                     ],
                     if (showChartPanel) ...[
-                      // ✅ Ganti ChartPanel jadi AdminGraph
                       _panelContainer(child: const AdminGraph()),
                       const SizedBox(height: 12),
                     ],
@@ -159,12 +171,17 @@ class _AdminDashboardAppState extends State<AdminDashboardApp>
                 ),
               ),
 
+              // ===============================================
+              // 5. TABLE HEADER & TABLE
+              // ===============================================
               Text("Data Penerima",
                   style: GoogleFonts.poppins(
-                      fontSize: 18, fontWeight: FontWeight.w600, color: navy)),
-              const SizedBox(height: 12),
-              const AdminShipmentTable(),
-              const SizedBox(height: 30),
+                      fontSize: 16, // 🔥 COMPACT: 18 -> 16
+                      fontWeight: FontWeight.w600,
+                      color: navy)),
+              const SizedBox(height: 8),
+              const AdminShipmentTable(), // File tabel ini nanti dikecilkan
+              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -172,7 +189,7 @@ class _AdminDashboardAppState extends State<AdminDashboardApp>
     );
   }
 
-  // ---------- SMALL WIDGETS ----------
+  // ---------- SMALL WIDGETS (COMPACT) ----------
   Widget _buildTopCard({
     required String title,
     required String subtitle,
@@ -185,40 +202,53 @@ class _AdminDashboardAppState extends State<AdminDashboardApp>
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 260),
-        width: 240,
-        padding: const EdgeInsets.all(14),
+        width: 170, // 🔥 COMPACT: Lebar 240 -> 170
+        padding: const EdgeInsets.all(10), // 🔥 COMPACT: Padding 14 -> 10
         decoration: BoxDecoration(
-          color: active ? color.withOpacity(0.12) : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: active ? color.withOpacity(0.25) : Colors.grey.shade200,
-          ),
-        ),
+            color: active ? color.withOpacity(0.12) : Colors.white,
+            borderRadius: BorderRadius.circular(12), // Radius 16 -> 12
+            border: Border.all(
+              color: active ? color.withOpacity(0.25) : Colors.grey.shade200,
+            ),
+            boxShadow: [
+              if (!active)
+                BoxShadow(
+                    color: Colors.black.withOpacity(0.03),
+                    blurRadius: 5,
+                    offset: const Offset(0, 2))
+            ]),
         child: Row(
           children: [
             Container(
-              width: 54,
-              height: 54,
+              width: 40, // 🔥 COMPACT: Box Icon 54 -> 40
+              height: 40,
               decoration: BoxDecoration(
                 color: active ? color : color.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(icon, color: active ? Colors.white : color, size: 28),
+              child: Icon(icon,
+                  color: active ? Colors.white : color,
+                  size: 20), // Icon 28 -> 20
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.poppins(
-                          fontSize: 15,
+                          fontSize: 12, // 🔥 COMPACT: 15 -> 12
                           fontWeight: FontWeight.w600,
-                          color: Colors.black87)),
+                          color: const Color(0xFF0B1650))),
                   Text(subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.poppins(
-                          fontSize: 12, color: Colors.black54)),
+                          fontSize: 10, // 🔥 COMPACT: 12 -> 10
+                          color: Colors.grey.shade600)),
                 ],
               ),
             )
@@ -228,60 +258,20 @@ class _AdminDashboardAppState extends State<AdminDashboardApp>
     );
   }
 
-  Widget _summaryCard({
-    required String title,
-    required String value,
-    required IconData icon,
-    required Color color,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 24,
-            backgroundColor: color.withOpacity(0.12),
-            child: Icon(icon, color: color, size: 22),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title,
-                    style: GoogleFonts.poppins(
-                        fontSize: 13, color: Colors.black54)),
-                Text(value,
-                    style: GoogleFonts.poppins(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87)),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _panelContainer({required Widget child}) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(
+          12), // Tetap 12 tapi konten di dalamnya nanti dikecilkan
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(12), // Radius 14 -> 12
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 6),
+            color: Colors.black.withOpacity(0.03), // Shadow lebih tipis
+            blurRadius: 8,
+            offset: const Offset(0, 4),
           ),
         ],
       ),

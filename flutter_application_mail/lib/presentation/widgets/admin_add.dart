@@ -23,6 +23,7 @@ class _AdminAddFormState extends State<AdminAddForm> {
   final codValueController = TextEditingController();
 
   String? selectedServiceType;
+
   final List<String> serviceTypes = [
     "Same Day",
     "Next Day",
@@ -34,143 +35,112 @@ class _AdminAddFormState extends State<AdminAddForm> {
   Widget build(BuildContext context) {
     final controller = Provider.of<AdminController>(context);
 
-    final inputStyle =
-        GoogleFonts.poppins(fontSize: 13.5, color: Colors.black87);
-
     return Center(
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 500),
-        margin: const EdgeInsets.all(20),
-        padding: const EdgeInsets.all(24),
+        constraints: const BoxConstraints(maxWidth: 520),
+        // 🔥 COMPACT: Padding dikurangi drastis (28/34 -> 20)
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius:
+              BorderRadius.circular(16), // Radius diperkecil (22 -> 16)
           boxShadow: [
             BoxShadow(
-              color: Colors.black12.withOpacity(0.1),
-              blurRadius: 20,
-              offset: const Offset(0, 6),
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
         child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 🔹 Header
+                // Header kecil (Opsional)
+                Text(
+                  "Form Input Data",
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF0A2647),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // ---------------- FORM FIELDS COMPACT ----------------
+                // Saya isi labelnya agar user tahu harus isi apa
+
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      "create transaction",
-                      style: GoogleFonts.poppins(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF0A2647),
-                      ),
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF0A2647),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: const EdgeInsets.all(6),
-                      child: const Icon(Icons.add_rounded,
-                          color: Colors.white, size: 22),
-                    )
+                    Expanded(
+                        child: _field("Nama Pengirim", senderNameController,
+                            Icons.person_rounded)),
+                    const SizedBox(width: 10),
+                    Expanded(
+                        child: _field("No. HP Pengirim", senderPhoneController,
+                            Icons.phone_android_rounded,
+                            keyboardType: TextInputType.phone)),
                   ],
                 ),
-                const SizedBox(height: 20),
-                const Divider(thickness: 1, color: Color(0xFFE9EEF3)),
-                const SizedBox(height: 20),
+                _gap(),
 
-                // 🔸 Form Fields
-                _buildField(
-                  controller: senderNameController,
-                  label: "Nama Pengirim",
-                  icon: Icons.person_outline,
-                  style: inputStyle,
-                  validatorText: "Nama pengirim wajib diisi",
-                ),
-                const SizedBox(height: 16),
-                _buildField(
-                  controller: senderPhoneController,
-                  label: "Nomor HP Pengirim",
-                  icon: Icons.phone_android_outlined,
-                  keyboardType: TextInputType.phone,
-                  style: inputStyle,
-                  validatorText: "Nomor HP pengirim wajib diisi",
-                ),
-                const SizedBox(height: 16),
-                _buildDropdown<String>(
-                  label: "Jenis Layanan",
-                  icon: Icons.local_shipping_outlined,
+                _dropdown(
+                  label: "Layanan",
+                  icon: Icons.local_shipping_rounded,
                   value: selectedServiceType,
                   items: serviceTypes,
-                  onChanged: (val) => setState(() => selectedServiceType = val),
+                  onChanged: (v) => setState(() => selectedServiceType = v),
                 ),
-                const SizedBox(height: 16),
-                _buildField(
-                  controller: receiverNameController,
-                  label: "Nama Penerima",
-                  icon: Icons.person_outline,
-                  style: inputStyle,
-                  validatorText: "Nama penerima wajib diisi",
-                ),
-                const SizedBox(height: 16),
-                _buildField(
-                  controller: receiverPhoneController,
-                  label: "Nomor HP Penerima",
-                  icon: Icons.phone_android_outlined,
-                  keyboardType: TextInputType.phone,
-                  style: inputStyle,
-                  validatorText: "Nomor HP penerima wajib diisi",
-                ),
-                const SizedBox(height: 16),
-                _buildField(
-                  controller: addressController,
-                  label: "Alamat Penerima",
-                  icon: Icons.home_outlined,
-                  style: inputStyle,
-                  maxLines: 2,
-                  validatorText: "Alamat wajib diisi",
-                ),
-                const SizedBox(height: 16),
-                _buildField(
-                  controller: itemContentController,
-                  label: "Isi Barang",
-                  icon: Icons.inventory_2_outlined,
-                  style: inputStyle,
-                  validatorText: "Isi barang wajib diisi",
-                ),
-                const SizedBox(height: 16),
-                _buildField(
-                  controller: codValueController,
-                  label: "Nilai COD",
-                  icon: Icons.monetization_on_outlined,
-                  keyboardType: TextInputType.number,
-                  style: inputStyle,
-                  validatorText: "Nilai COD wajib diisi",
-                ),
-                const SizedBox(height: 28),
+                _gap(),
 
-                // 🔹 Tombol Simpan
+                Row(
+                  children: [
+                    Expanded(
+                        child: _field("Nama Penerima", receiverNameController,
+                            Icons.person_pin_rounded)),
+                    const SizedBox(width: 10),
+                    Expanded(
+                        child: _field(
+                            "No. HP Penerima",
+                            receiverPhoneController,
+                            Icons.phone_android_rounded,
+                            keyboardType: TextInputType.phone)),
+                  ],
+                ),
+                _gap(),
+
+                _field("Alamat Penerima", addressController, Icons.home_rounded,
+                    maxLines: 2), // Maxlines 2 cukup
+                _gap(),
+
+                _field("Isi Paket", itemContentController,
+                    Icons.inventory_2_rounded),
+                _gap(),
+
+                _field("Nilai COD (Rp)", codValueController,
+                    Icons.payments_rounded,
+                    keyboardType: TextInputType.number),
+
+                const SizedBox(height: 20),
+
+                // ---------------- SAVE BUTTON COMPACT ----------------
                 Align(
                   alignment: Alignment.centerRight,
-                  child: ElevatedButton.icon(
-                    onPressed: controller.isLoading
-                        ? null
-                        : () {
-                            if (_formKey.currentState!.validate()) {
+                  child: SizedBox(
+                    height: 40, // Tinggi tombol fix dan kecil
+                    child: ElevatedButton(
+                      onPressed: controller.isLoading
+                          ? null
+                          : () {
+                              if (!_formKey.currentState!.validate()) return;
+
                               if (selectedServiceType == null) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text(
-                                        "Pilih jenis layanan terlebih dahulu."),
-                                  ),
+                                      content: Text(
+                                          "Pilih jenis layanan terlebih dahulu.")),
                                 );
                                 return;
                               }
@@ -188,36 +158,30 @@ class _AdminAddFormState extends State<AdminAddForm> {
                               );
 
                               controller.insertTransaction(context, req);
-                            }
-                          },
-                    icon: controller.isLoading
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
+                            },
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        backgroundColor: const Color(0xFF0A2647),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        elevation: 2,
+                      ),
+                      child: controller.isLoading
+                          ? const SizedBox(
+                              height: 16,
+                              width: 16,
+                              child: CircularProgressIndicator(
+                                  color: Colors.white, strokeWidth: 2),
+                            )
+                          : Text(
+                              "Simpan Data",
+                              style: GoogleFonts.poppins(
+                                fontSize: 10, // Font kecil
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
                             ),
-                          )
-                        : const Icon(Icons.save_rounded,
-                            color: Colors.white, size: 18),
-                    label: Text(
-                      controller.isLoading ? "Menyimpan..." : "Simpan",
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0A2647),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 13),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      elevation: 6,
-                      shadowColor: Colors.black26,
                     ),
                   ),
                 ),
@@ -229,14 +193,11 @@ class _AdminAddFormState extends State<AdminAddForm> {
     );
   }
 
-  // =================== COMPONENTS ===================
-
-  Widget _buildField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    required TextStyle style,
-    required String validatorText,
+  // ───────────────── COMPACT FIELD ─────────────────
+  Widget _field(
+    String label,
+    TextEditingController controller,
+    IconData icon, {
     TextInputType keyboardType = TextInputType.text,
     int maxLines = 1,
   }) {
@@ -244,66 +205,78 @@ class _AdminAddFormState extends State<AdminAddForm> {
       controller: controller,
       keyboardType: keyboardType,
       maxLines: maxLines,
-      validator: (val) => val == null || val.isEmpty ? validatorText : null,
-      style: style,
+      validator: (v) => v == null || v.isEmpty ? "Wajib diisi" : null,
+      style:
+          GoogleFonts.poppins(fontSize: 12, color: Colors.black87), // Font 12
       decoration: InputDecoration(
-        prefixIcon: Icon(icon, color: const Color(0xFF0A2647)),
         labelText: label,
-        labelStyle: GoogleFonts.poppins(
-            fontSize: 13, color: const Color.fromARGB(255, 0, 0, 0)),
+        labelStyle: GoogleFonts.poppins(fontSize: 11, color: Colors.grey[600]),
+        prefixIcon:
+            Icon(icon, color: const Color(0xFF0A2647), size: 18), // Icon 18
         filled: true,
-        fillColor: const Color(0xFFF9FAFB),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFF0A2647), width: 1.5),
+        fillColor: Colors.grey.shade50,
+        isDense: true, // 🔥 PENTING: Agar tidak boros tempat
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10), // Radius 10
+          borderSide: BorderSide(color: Colors.grey.shade300),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: const Color.fromARGB(255, 6, 24, 97)),
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Colors.grey.shade300),
         ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: const Color(0xFF0A2647), width: 1.5),
+        ),
       ),
     );
   }
 
-  Widget _buildDropdown<T>({
+  Widget _dropdown({
     required String label,
     required IconData icon,
-    required T? value,
-    required List<T> items,
-    required void Function(T?) onChanged,
+    required dynamic value,
+    required List items,
+    required Function(dynamic) onChanged,
   }) {
-    return DropdownButtonFormField<T>(
+    return DropdownButtonFormField(
       value: value,
       items: items
           .map((e) => DropdownMenuItem(
                 value: e,
-                child: Text(
-                  e.toString(),
-                  style:
-                      GoogleFonts.poppins(fontSize: 13, color: Colors.black87),
-                ),
+                child:
+                    Text(e.toString(), style: GoogleFonts.inter(fontSize: 12)),
               ))
           .toList(),
       onChanged: onChanged,
+      style: GoogleFonts.inter(fontSize: 12, color: Colors.black87),
       decoration: InputDecoration(
-        prefixIcon: Icon(icon, color: const Color(0xFF0A2647)),
         labelText: label,
-        labelStyle: GoogleFonts.poppins(fontSize: 13, color: Colors.grey[700]),
+        labelStyle: GoogleFonts.inter(fontSize: 11, color: Colors.grey[600]),
+        prefixIcon: Icon(icon, color: const Color(0xFF0A2647), size: 18),
         filled: true,
-        fillColor: const Color(0xFFF9FAFB),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFF0A2647), width: 1.5),
+        fillColor: Colors.grey.shade50,
+        isDense: true, // 🔥 PENTING
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Colors.grey.shade300),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: const Color.fromARGB(255, 3, 20, 94)),
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Colors.grey.shade300),
         ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: const Color(0xFF0A2647), width: 1.5),
+        ),
       ),
     );
   }
+
+  // Jarak antar field dikurangi (18 -> 10)
+  SizedBox _gap() => const SizedBox(height: 10);
 }

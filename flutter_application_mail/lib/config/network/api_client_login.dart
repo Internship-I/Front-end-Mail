@@ -1,12 +1,17 @@
 import 'package:dio/dio.dart';
 
 class ApiClient {
+  // 🔥 Singleton Instance
+  static final ApiClient instance = ApiClient._internal();
+
+  // Base URL utama (user)
   static const String baseUrl =
       'https://wsmailbe-7daa66974ddc.herokuapp.com/api/user';
 
   late final Dio _dio;
 
-  ApiClient() {
+  // Constructor privat untuk Singleton
+  ApiClient._internal() {
     _dio = Dio(
       BaseOptions(
         baseUrl: baseUrl,
@@ -58,16 +63,16 @@ class ApiClient {
     );
   }
 
+  // Getter dio utama
   Dio get dio => _dio;
 
-  /// 🔥 Gunakan ini untuk request ke base public (login)
-  Dio get publicDio {
+  // 🔥 Public API untuk Login
+  Dio get public {
     return Dio(
       BaseOptions(
+        baseUrl: "https://wsmailbe-7daa66974ddc.herokuapp.com/api/public",
         connectTimeout: const Duration(seconds: 40),
         receiveTimeout: const Duration(seconds: 40),
-        baseUrl:
-            "https://wsmailbe-7daa66974ddc.herokuapp.com/api/public", // khusus login
         contentType: 'application/json',
       ),
     );
